@@ -181,14 +181,14 @@ export function ContentTable({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Top Toolbar: Search & Status Filters */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col flex-1 w-full min-h-0 bg-background">
+      {/* Top Toolbar: Search & Status Filters (Flush Edge-to-Edge) */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-6 py-3.5 border-b bg-card">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             placeholder="Search by title, slug, category, or #tag..."
-            className="pl-9 h-9 text-xs rounded-md"
+            className="pl-9 h-9 text-xs rounded-md bg-muted/20"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -227,9 +227,9 @@ export function ContentTable({
         </Tabs>
       </div>
 
-      {/* FLOATING / STICKY BULK ACTIONS BAR */}
+      {/* FLOATING BULK ACTIONS BAR */}
       {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 shadow-xs">
+        <div className="mx-6 my-3 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 shadow-xs">
           <div className="flex items-center gap-2 text-xs font-semibold text-primary">
             <CheckCircle2 className="size-4" />
             <span>{selectedIds.length} article(s) selected</span>
@@ -275,270 +275,268 @@ export function ContentTable({
         </div>
       )}
 
-      {/* Neat Rounded Card Container for Table & Sticky Footer */}
-      <div className="rounded-xl border bg-card overflow-hidden shadow-xs">
-        <div className="overflow-x-auto max-h-[620px]">
-          <Table>
-            <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur-xs">
-              <TableRow className="hover:bg-transparent border-b">
-                <TableHead className="w-10 py-2.5 pl-4 pr-1">
-                  <Checkbox
-                    checked={isAllPaginatedSelected}
-                    onCheckedChange={toggleSelectAll}
-                  />
-                </TableHead>
-                <TableHead className="w-[300px] text-xs font-semibold py-2.5">Article Title & Slug</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Category & Tags</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Inline Status</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Target Adapters</TableHead>
-                <TableHead className="text-center text-xs font-semibold py-2.5">SEO</TableHead>
-                <TableHead className="text-center text-xs font-semibold py-2.5">GEO</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Date</TableHead>
-                <TableHead className="text-right text-xs font-semibold py-2.5 pr-4">Actions</TableHead>
+      {/* Flush Edge-to-Edge Table with Comfortable Inner Cell Padding (px-6 py-3.5) */}
+      <div className="relative w-full flex-1 overflow-x-auto bg-card">
+        <Table className="w-full border-none">
+          <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur-xs">
+            <TableRow className="hover:bg-transparent border-b">
+              <TableHead className="w-12 py-3.5 pl-6 pr-2">
+                <Checkbox
+                  checked={isAllPaginatedSelected}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
+              <TableHead className="w-[340px] text-xs font-semibold py-3.5 px-6">Article Title & Slug</TableHead>
+              <TableHead className="text-xs font-semibold py-3.5 px-6">Category & Tags</TableHead>
+              <TableHead className="text-xs font-semibold py-3.5 px-6">Inline Status</TableHead>
+              <TableHead className="text-xs font-semibold py-3.5 px-6">Target Adapters</TableHead>
+              <TableHead className="text-center text-xs font-semibold py-3.5 px-6">SEO</TableHead>
+              <TableHead className="text-center text-xs font-semibold py-3.5 px-6">GEO</TableHead>
+              <TableHead className="text-xs font-semibold py-3.5 px-6">Date</TableHead>
+              <TableHead className="text-right text-xs font-semibold py-3.5 pr-6">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="h-36 text-center text-muted-foreground text-xs"
+                >
+                  No articles match your search or filter.
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={9}
-                    className="h-32 text-center text-muted-foreground text-xs"
+            ) : (
+              paginatedData.map((article) => {
+                const isSelected = selectedIds.includes(article.id);
+                return (
+                  <TableRow
+                    key={article.id}
+                    className={`hover:bg-muted/30 border-b transition-colors ${isSelected ? "bg-primary/5" : ""}`}
                   >
-                    No articles match your search or filter.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedData.map((article) => {
-                  const isSelected = selectedIds.includes(article.id);
-                  return (
-                    <TableRow
-                      key={article.id}
-                      className={`hover:bg-muted/30 border-b ${isSelected ? "bg-primary/5" : ""}`}
-                    >
-                      {/* Checkbox Column */}
-                      <TableCell className="py-2.5 pl-4 pr-1">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleSelectRow(article.id)}
-                        />
-                      </TableCell>
+                    {/* Checkbox Column */}
+                    <TableCell className="py-3.5 pl-6 pr-2">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelectRow(article.id)}
+                      />
+                    </TableCell>
 
-                      {/* Title & Slug Column */}
-                      <TableCell className="py-2.5">
-                        <div className="flex items-center gap-2.5">
-                          {article.featuredImage && (
-                            <div className="size-8 rounded border overflow-hidden shrink-0 hidden sm:block bg-muted">
-                              <img
-                                src={article.featuredImage}
-                                alt=""
-                                className="size-full object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="min-w-0 space-y-0.5">
-                            <div
-                              onClick={() => onEdit(article)}
-                              className="font-semibold text-xs truncate max-w-xs hover:text-primary cursor-pointer"
-                              title={article.title}
-                            >
-                              {article.title}
-                            </div>
-                            <div className="text-[11px] text-muted-foreground font-mono truncate max-w-xs">
-                              /{article.slug}
-                            </div>
+                    {/* Title & Slug Column */}
+                    <TableCell className="py-3.5 px-6">
+                      <div className="flex items-center gap-3">
+                        {article.featuredImage && (
+                          <div className="size-9 rounded border overflow-hidden shrink-0 hidden sm:block bg-muted">
+                            <img
+                              src={article.featuredImage}
+                              alt=""
+                              className="size-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="min-w-0 space-y-0.5">
+                          <div
+                            onClick={() => onEdit(article)}
+                            className="font-semibold text-xs truncate max-w-xs hover:text-primary cursor-pointer leading-tight"
+                            title={article.title}
+                          >
+                            {article.title}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground font-mono truncate max-w-xs">
+                            /{article.slug}
                           </div>
                         </div>
-                      </TableCell>
+                      </div>
+                    </TableCell>
 
-                      {/* Category & Tags Column */}
-                      <TableCell className="py-2.5 px-3">
-                        <div className="flex flex-col gap-1 items-start">
-                          <Badge variant="outline" className="text-[11px] font-medium rounded-xs px-1.5 py-0">
-                            {article.category}
-                          </Badge>
-                          {article.tags && article.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {article.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="text-[10px] text-muted-foreground font-medium bg-muted/60 px-1 rounded-xs"
-                                >
-                                  #{tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-
-                      {/* INLINE STATUS SELECTOR DROPDOWN */}
-                      <TableCell className="py-2.5 px-3">
-                        <Select
-                          value={article.status}
-                          onValueChange={(val) =>
-                            onStatusChange(article.id, val as ContentItem["status"])
-                          }
-                        >
-                          <SelectTrigger
-                            className={`h-7 text-xs font-medium rounded-xs border w-28 px-2 py-0 ${statusBadgeStyles[article.status].className}`}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent align="start">
-                            <SelectItem value="draft" className="text-xs">Draft</SelectItem>
-                            <SelectItem value="scheduled" className="text-xs">Scheduled</SelectItem>
-                            <SelectItem value="published" className="text-xs">Published</SelectItem>
-                            <SelectItem value="archived" className="text-xs">Archived</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-
-                      {/* Target Adapters Badges */}
-                      <TableCell className="py-2.5 px-3">
-                        <div className="flex flex-wrap gap-1">
-                          {article.adapters.map((adapter) => (
-                            <Badge
-                              key={adapter}
-                              variant="secondary"
-                              className="text-[10px] font-normal rounded-xs px-1.5 py-0"
-                            >
-                              <Globe className="mr-0.5 size-2.5 text-muted-foreground" />
-                              {adapter}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-
-                      {/* SEO Score */}
-                      <TableCell className="text-center py-2.5 px-3">
-                        <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
-                          <Search className="size-3" />
-                          {article.seoScore ?? 94}
-                        </span>
-                      </TableCell>
-
-                      {/* GEO Score */}
-                      <TableCell className="text-center py-2.5 px-3">
-                        <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-purple-600 dark:text-purple-400">
-                          <Sparkles className="size-3" />
-                          {article.geoScore ?? 90}
-                        </span>
-                      </TableCell>
-
-                      {/* Date */}
-                      <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap py-2.5 px-3">
-                        {article.publishDate || article.updatedAt || article.createdAt || "N/A"}
-                      </TableCell>
-
-                      {/* Actions Menu + Live Preview Button */}
-                      <TableCell className="text-right py-2.5 pr-4">
-                        <div className="flex items-center justify-end gap-1">
-                          {/* Live Preview Drawer Trigger */}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7 rounded-xs text-muted-foreground hover:text-foreground"
-                            title="Quick Live Preview"
-                            onClick={() => setPreviewArticle(article)}
-                          >
-                            <Eye className="size-3.5" />
-                          </Button>
-
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="size-7 rounded-xs">
-                                <MoreHorizontal className="size-3.5" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => onEdit(article)}>
-                                <Edit className="mr-2 size-3.5 text-blue-500" />
-                                Edit Article
-                              </DropdownMenuItem>
-                              {article.status !== "published" && (
-                                <DropdownMenuItem onClick={() => onPublish(article.id)}>
-                                  <Send className="mr-2 size-3.5 text-emerald-500" />
-                                  Quick Publish
-                                </DropdownMenuItem>
-                              )}
-                              {article.status !== "archived" && (
-                                <DropdownMenuItem onClick={() => onArchive(article.id)}>
-                                  <Archive className="mr-2 size-3.5 text-amber-500" />
-                                  Archive Article
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => onDelete(article.id)}
-                                className="text-destructive focus:text-destructive"
+                    {/* Category & Tags Column */}
+                    <TableCell className="py-3.5 px-6">
+                      <div className="flex flex-col gap-1 items-start">
+                        <Badge variant="outline" className="text-[11px] font-medium rounded-xs px-2 py-0.5">
+                          {article.category}
+                        </Badge>
+                        {article.tags && article.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {article.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="text-[10px] text-muted-foreground font-medium bg-muted/60 px-1.5 py-0.5 rounded-xs"
                               >
-                                <Trash2 className="mr-2 size-3.5" />
-                                Delete Article
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    {/* INLINE STATUS SELECTOR DROPDOWN */}
+                    <TableCell className="py-3.5 px-6">
+                      <Select
+                        value={article.status}
+                        onValueChange={(val) =>
+                          onStatusChange(article.id, val as ContentItem["status"])
+                        }
+                      >
+                        <SelectTrigger
+                          className={`h-7 text-xs font-medium rounded-xs border w-28 px-2 py-0 ${statusBadgeStyles[article.status].className}`}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent align="start">
+                          <SelectItem value="draft" className="text-xs">Draft</SelectItem>
+                          <SelectItem value="scheduled" className="text-xs">Scheduled</SelectItem>
+                          <SelectItem value="published" className="text-xs">Published</SelectItem>
+                          <SelectItem value="archived" className="text-xs">Archived</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+
+                    {/* Target Adapters Badges */}
+                    <TableCell className="py-3.5 px-6">
+                      <div className="flex flex-wrap gap-1">
+                        {article.adapters.map((adapter) => (
+                          <Badge
+                            key={adapter}
+                            variant="secondary"
+                            className="text-[10px] font-normal rounded-xs px-1.5 py-0.5"
+                          >
+                            <Globe className="mr-1 size-2.5 text-muted-foreground" />
+                            {adapter}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+
+                    {/* SEO Score */}
+                    <TableCell className="text-center py-3.5 px-6">
+                      <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
+                        <Search className="size-3" />
+                        {article.seoScore ?? 94}
+                      </span>
+                    </TableCell>
+
+                    {/* GEO Score */}
+                    <TableCell className="text-center py-3.5 px-6">
+                      <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-purple-600 dark:text-purple-400">
+                        <Sparkles className="size-3" />
+                        {article.geoScore ?? 90}
+                      </span>
+                    </TableCell>
+
+                    {/* Date */}
+                    <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap py-3.5 px-6">
+                      {article.publishDate || article.updatedAt || article.createdAt || "N/A"}
+                    </TableCell>
+
+                    {/* Actions Menu + Live Preview Button */}
+                    <TableCell className="text-right py-3.5 pr-6">
+                      <div className="flex items-center justify-end gap-1">
+                        {/* Live Preview Drawer Trigger */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 rounded-xs text-muted-foreground hover:text-foreground"
+                          title="Quick Live Preview"
+                          onClick={() => setPreviewArticle(article)}
+                        >
+                          <Eye className="size-3.5" />
+                        </Button>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-7 rounded-xs">
+                              <MoreHorizontal className="size-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => onEdit(article)}>
+                              <Edit className="mr-2 size-3.5 text-blue-500" />
+                              Edit Article
+                            </DropdownMenuItem>
+                            {article.status !== "published" && (
+                              <DropdownMenuItem onClick={() => onPublish(article.id)}>
+                                <Send className="mr-2 size-3.5 text-emerald-500" />
+                                Quick Publish
                               </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+                            )}
+                            {article.status !== "archived" && (
+                              <DropdownMenuItem onClick={() => onArchive(article.id)}>
+                                <Archive className="mr-2 size-3.5 text-amber-500" />
+                                Archive Article
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => onDelete(article.id)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="mr-2 size-3.5" />
+                              Delete Article
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* STICKY FOOTER PAGINATION BAR (FLUSH EDGE-TO-EDGE) */}
+      <div className="sticky bottom-0 bg-card border-t z-10 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <span>Rows per page:</span>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={(val) => {
+              setPageSize(Number(val));
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="h-7 w-16 text-xs rounded-xs border">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <span className="hidden sm:inline-block ml-2 border-l pl-3">
+            Showing {totalItems === 0 ? 0 : startIndex + 1}–
+            {Math.min(startIndex + pageSize, totalItems)} of {totalItems} articles
+          </span>
         </div>
 
-        {/* STICKY FOOTER PAGINATION BAR */}
-        <div className="sticky bottom-0 bg-card border-t z-10 px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span>Rows per page:</span>
-            <Select
-              value={pageSize.toString()}
-              onValueChange={(val) => {
-                setPageSize(Number(val));
-                setCurrentPage(1);
-              }}
+        <div className="flex items-center gap-2">
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7 rounded-xs"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             >
-              <SelectTrigger className="h-7 w-16 text-xs rounded-xs border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <span className="hidden sm:inline-block ml-2 border-l pl-3">
-              Showing {totalItems === 0 ? 0 : startIndex + 1}–
-              {Math.min(startIndex + pageSize, totalItems)} of {totalItems} articles
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 rounded-xs"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              >
-                <ChevronLeft className="size-3.5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-7 rounded-xs"
-                disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              >
-                <ChevronRight className="size-3.5" />
-              </Button>
-            </div>
+              <ChevronLeft className="size-3.5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7 rounded-xs"
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            >
+              <ChevronRight className="size-3.5" />
+            </Button>
           </div>
         </div>
       </div>
