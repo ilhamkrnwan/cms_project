@@ -1,0 +1,26 @@
+{
+  "name": "wontent-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter \"*\" dev",
+    "dev:admin": "bun --filter @wontent/admin dev",
+    "dev:api": "bun --filter @wontent/api dev",
+    "dev:compro": "bun --filter @wontent/compro dev",
+    "build": "bun --filter \"*\" build",
+    "build:admin": "bun --filter @wontent/admin build",
+    "build:api": "bun --filter @wontent/api build",
+    "build:compro": "bun --filter @wontent/compro build",
+    "typecheck": "bun --filter \"*\" typecheck",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  }
+}

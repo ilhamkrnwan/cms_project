@@ -1,0 +1,82 @@
+---
+let articles = [];
+let fetchError = false;
+
+try {
+  const res = await fetch('http://localhost:3000/api/v1/contents');
+  if (res.ok) {
+    const json = await res.json();
+    articles = json.data || [];
+  } else {
+    fetchError = true;
+  }
+} catch (e) {
+  fetchError = true;
+}
+
+// Fallback demo content if API server is restarting
+if (articles.length === 0) {
+  articles = [
+    {
+      id: 'demo-1',
+      title: 'Building Modern Content Ecosystems with Bun, Elysia, and Astro',
+      slug: 'building-modern-content-ecosystems',
+      excerpt: 'Discover how Wontent Content Hub empowers enterprise teams to publish everywhere with zero friction.',
+      status: 'published',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'demo-2',
+      title: 'GEO vs SEO: Optimizing Your Enterprise for AI Search Engines',
+      slug: 'geo-vs-seo-optimizing-for-ai-search',
+      excerpt: 'Why Generative Engine Optimization is the new battleground for brand authority in LLM search prompts.',
+      status: 'published',
+      createdAt: new Date().toISOString()
+    }
+  ];
+}
+---
+
+<section id="articles" class="py-20 relative bg-[#090d16]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-500/10 text-blue-400 text-xs font-bold mb-3 border border-blue-500/20">
+          <span>Live API Connection</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Managed Content Articles</h2>
+        <p class="text-gray-400 text-sm mt-2">Articles dynamically updated from the Wontent Content Hub API.</p>
+      </div>
+
+      <a href="http://localhost:5173" target="_blank" class="mt-4 md:mt-0 text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1">
+        Manage in Wontent CMS Dashboard →
+      </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      {articles.map((article: any) => (
+        <article class="glass-card rounded-2xl p-6 border border-gray-800 hover:border-purple-500/40 transition-all flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-4 text-xs text-gray-400 mb-4">
+              <span class="px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 font-semibold uppercase tracking-wider">
+                {article.status || 'published'}
+              </span>
+              <time datetime={article.createdAt}>
+                {new Date(article.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </time>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-3 hover:text-blue-400 transition-colors">
+              <a href={`/blog/${article.slug}`}>{article.title}</a>
+            </h3>
+            <p class="text-gray-400 text-sm line-clamp-3 leading-relaxed mb-6">
+              {article.excerpt || article.content?.slice(0, 140) + '...'}
+            </p>
+          </div>
+          <a href={`/blog/${article.slug}`} class="inline-flex items-center text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors">
+            Read Full Article →
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

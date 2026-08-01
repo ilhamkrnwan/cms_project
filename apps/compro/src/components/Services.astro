@@ -1,0 +1,45 @@
+---
+const services = [
+  {
+    icon: "⚡",
+    title: "Omnichannel Content Publishing",
+    description: "Write content once in Wontent CMS and publish seamlessly across WordPress, Astro, Next.js, and Social Channels instantly."
+  },
+  {
+    icon: "🤖",
+    title: "Generative Engine Optimization (GEO)",
+    description: "Prepare your brand content for AI Search engines (ChatGPT, Perplexity, Claude, SearchGPT) with structured JSON-LD schemas & entity detection."
+  },
+  {
+    icon: "🚀",
+    title: "High-Performance Cloud Architecture",
+    description: "Ultra-fast headless architectures built on Bun, Astro, Next.js, and Docker Compose with microservices isolation."
+  },
+  {
+    icon: "📊",
+    title: "Real-time Content Analytics",
+    description: "Deep analytics tracking engagement, GEO visibility scores, SEO keyword density, and automated adapter delivery status."
+  }
+];
+---
+
+<section id="services" class="py-20 relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-bold uppercase tracking-widest text-purple-400 mb-3">Enterprise Capabilities</h2>
+      <p class="text-3xl sm:text-4xl font-extrabold text-white">Engineered for Omnichannel Supremacy</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      {services.map(service => (
+        <div class="glass-card p-8 rounded-2xl hover:border-purple-500/50 transition-all duration-300 group hover:-translate-y-1">
+          <div class="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+            {service.icon}
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">{service.title}</h3>
+          <p class="text-gray-400 leading-relaxed text-sm">{service.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

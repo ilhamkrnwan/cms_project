@@ -1,0 +1,16 @@
+{
+  "name": "@wontent/sdk",
+  "version": "1.0.0",
+  "description": "TypeScript & JavaScript SDK client for Wontent Content Hub",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@wontent/types": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wontent-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-wontent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wontentpass}
+      POSTGRES_DB: ${POSTGRES_DB:-wontent_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-wontent} -d ${POSTGRES_DB:-wontent_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: wontent-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-wontentminio}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-wontentminiopass}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: wontent-mailpit
+    restart: always
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: wontent-api
+    restart: always
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: ${PORT:-3000}
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-wontent}:${POSTGRES_PASSWORD:-wontentpass}@postgres:5432/${POSTGRES_DB:-wontent_db}
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-wontentminio}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-wontentminiopass}
+      S3_BUCKET: wontent-media
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      CORS_ORIGIN: "*"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: wontent-admin
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  compro:
+    build:
+      context: .
+      dockerfile: apps/compro/Dockerfile
+    container_name: wontent-compro
+    restart: always
+    ports:
+      - "4321:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  minio_data:

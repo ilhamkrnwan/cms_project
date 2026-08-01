@@ -1,0 +1,82 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  let articles = [];
+  try {
+    const res = await fetch('http://localhost:3000/api/v1/contents');
+    if (res.ok) {
+      const json = await res.json();
+      articles = json.data || [];
+    }
+  } catch (e) {}
+
+  if (articles.length === 0) {
+    articles = [
+      { slug: 'building-modern-content-ecosystems' },
+      { slug: 'geo-vs-seo-optimizing-for-ai-search' }
+    ];
+  }
+
+  return articles.map((article: any) => ({
+    params: { slug: article.slug }
+  }));
+}
+
+const { slug } = Astro.params;
+
+let article: any = null;
+
+try {
+  const res = await fetch('http://localhost:3000/api/v1/contents');
+  if (res.ok) {
+    const json = await res.json();
+    const items = json.data || [];
+    article = items.find((item: any) => item.slug === slug);
+  }
+} catch (e) {}
+
+if (!article) {
+  article = {
+    title: slug ? slug.replace(/-/g, ' ').toUpperCase() : 'MANAGED ARTICLE',
+    slug: slug || 'article',
+    content: `This article is dynamically managed from the Wontent Content Hub. Changes published in the CMS dashboard instantly reflect across this Astro frontend company profile.`,
+    status: 'published',
+    createdAt: new Date().toISOString()
+  };
+}
+---
+
+<Layout title={`${article.title} | Apex Digital`}>
+  <article class="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+      <a href="/#articles" class="text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors inline-flex items-center gap-1 mb-6">
+        ← Back to Insights & Articles
+      </a>
+      <div class="flex items-center gap-3 text-xs text-gray-400 mb-4">
+        <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 font-semibold uppercase">
+          {article.status || 'published'}
+        </span>
+        <span>•</span>
+        <time datetime={article.createdAt}>
+          {new Date(article.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </time>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
+        {article.title}
+      </h1>
+    </div>
+
+    <div class="glass-card rounded-3xl p-8 sm:p-12 border border-gray-800 text-gray-300 leading-relaxed space-y-6 text-base sm:text-lg">
+      <p>{article.content}</p>
+      
+      <div class="mt-8 p-6 rounded-2xl bg-purple-950/30 border border-purple-500/30">
+        <h4 class="text-purple-300 font-bold text-sm mb-2">⚡ Live CMS Synchronization Note</h4>
+        <p class="text-xs text-gray-400">
+          This article is served live via Wontent Content Hub REST API (`/api/v1/contents`). Any edits, publishing actions, or SEO metadata adjustments made in the Admin Dashboard at port 5173 update this page instantly.
+        </p>
+      </div>
+    </div>
+  </article>
+</Layout>
