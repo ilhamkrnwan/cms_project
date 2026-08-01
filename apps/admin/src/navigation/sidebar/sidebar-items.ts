@@ -94,7 +94,7 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "media",
         title: "Media Library",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/mail",
         icon: ImageIcon,
       },
     ],
