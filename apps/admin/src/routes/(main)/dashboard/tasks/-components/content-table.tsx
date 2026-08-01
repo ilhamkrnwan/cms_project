@@ -125,14 +125,14 @@ export function ContentTable({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col flex-1 w-full min-h-0 bg-background">
       {/* Top Toolbar: Search & Status Filters */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-6 py-3 border-b bg-card">
         <div className="relative w-full max-w-md">
           <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
           <Input
             placeholder="Search by title, slug, category, or #tag..."
-            className="pl-9 h-9 text-xs rounded-md"
+            className="pl-9 h-9 text-xs rounded-md bg-muted/20"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -171,23 +171,22 @@ export function ContentTable({
         </Tabs>
       </div>
 
-      {/* Compact High-Density Table with Sticky Footer Container */}
-      <div className="relative rounded-lg border bg-card overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto max-h-[600px]">
-          <Table>
-            <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur-xs">
-              <TableRow className="hover:bg-transparent border-b">
-                <TableHead className="w-[320px] text-xs font-semibold py-2.5">Article Title & Slug</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Category & Tags</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Inline Status</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Target Adapters</TableHead>
-                <TableHead className="text-center text-xs font-semibold py-2.5">SEO</TableHead>
-                <TableHead className="text-center text-xs font-semibold py-2.5">GEO</TableHead>
-                <TableHead className="text-xs font-semibold py-2.5">Date</TableHead>
-                <TableHead className="text-right text-xs font-semibold py-2.5">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+      {/* Compact High-Density Table with Edge-to-Edge Flush Borders */}
+      <div className="relative w-full flex-1 overflow-x-auto bg-card">
+        <Table className="w-full">
+          <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur-xs">
+            <TableRow className="hover:bg-transparent border-b">
+              <TableHead className="w-[320px] text-xs font-semibold py-3 pl-6">Article Title & Slug</TableHead>
+              <TableHead className="text-xs font-semibold py-3 px-4">Category & Tags</TableHead>
+              <TableHead className="text-xs font-semibold py-3 px-4">Inline Status</TableHead>
+              <TableHead className="text-xs font-semibold py-3 px-4">Target Adapters</TableHead>
+              <TableHead className="text-center text-xs font-semibold py-3 px-4">SEO</TableHead>
+              <TableHead className="text-center text-xs font-semibold py-3 px-4">GEO</TableHead>
+              <TableHead className="text-xs font-semibold py-3 px-4">Date</TableHead>
+              <TableHead className="text-right text-xs font-semibold py-3 pr-6">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
                   <TableCell
@@ -201,7 +200,7 @@ export function ContentTable({
                 paginatedData.map((article) => (
                   <TableRow key={article.id} className="hover:bg-muted/30 border-b">
                     {/* Title & Slug Column */}
-                    <TableCell className="py-2.5">
+                    <TableCell className="py-2.5 pl-6">
                       <div className="flex items-center gap-2.5">
                         {article.featuredImage && (
                           <div className="size-8 rounded border overflow-hidden shrink-0 hidden sm:block bg-muted">
@@ -228,7 +227,7 @@ export function ContentTable({
                     </TableCell>
 
                     {/* Category & Tags Column */}
-                    <TableCell className="py-2.5">
+                    <TableCell className="py-2.5 px-4">
                       <div className="flex flex-col gap-1 items-start">
                         <Badge variant="outline" className="text-[11px] font-medium rounded-xs px-1.5 py-0">
                           {article.category}
@@ -249,7 +248,7 @@ export function ContentTable({
                     </TableCell>
 
                     {/* INLINE STATUS SELECTOR DROPDOWN */}
-                    <TableCell className="py-2.5">
+                    <TableCell className="py-2.5 px-4">
                       <Select
                         value={article.status}
                         onValueChange={(val) =>
@@ -271,7 +270,7 @@ export function ContentTable({
                     </TableCell>
 
                     {/* Target Adapters Badges */}
-                    <TableCell className="py-2.5">
+                    <TableCell className="py-2.5 px-4">
                       <div className="flex flex-wrap gap-1">
                         {article.adapters.map((adapter) => (
                           <Badge
@@ -287,7 +286,7 @@ export function ContentTable({
                     </TableCell>
 
                     {/* SEO Score */}
-                    <TableCell className="text-center py-2.5">
+                    <TableCell className="text-center py-2.5 px-4">
                       <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
                         <Search className="size-3" />
                         {article.seoScore ?? 94}
@@ -295,7 +294,7 @@ export function ContentTable({
                     </TableCell>
 
                     {/* GEO Score */}
-                    <TableCell className="text-center py-2.5">
+                    <TableCell className="text-center py-2.5 px-4">
                       <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-purple-600 dark:text-purple-400">
                         <Sparkles className="size-3" />
                         {article.geoScore ?? 90}
@@ -303,12 +302,12 @@ export function ContentTable({
                     </TableCell>
 
                     {/* Date */}
-                    <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap py-2.5">
+                    <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap py-2.5 px-4">
                       {article.publishDate || article.updatedAt || article.createdAt || "N/A"}
                     </TableCell>
 
                     {/* Actions Menu + Live Preview Button */}
-                    <TableCell className="text-right py-2.5">
+                    <TableCell className="text-right py-2.5 pr-6">
                       <div className="flex items-center justify-end gap-1">
                         {/* Live Preview Drawer Trigger */}
                         <Button
@@ -417,7 +416,6 @@ export function ContentTable({
             </div>
           </div>
         </div>
-      </div>
 
       {/* LIVE ARTICLE PREVIEW MODAL / DRAWER */}
       <Dialog
