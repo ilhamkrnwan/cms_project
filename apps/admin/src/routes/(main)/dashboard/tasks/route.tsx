@@ -17,6 +17,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "panduan-lengkap-optimasi-seo-geo-cms",
     body: "Panduan lengkap langkah demi langkah untuk mengoptimalkan konten website terhadap Google Search dan AI Generative Search Engines seperti ChatGPT & Perplexity.\n\nDalam era digital modern, membuat konten berkualitas saja tidak cukup. Konten harus terstruktur secara rapi agar mudah dipahami baik oleh crawler mesin pencari (SEO) maupun Large Language Model (GEO).\n\n### 1. Struktur Heading yang Disukai AI\nPenggunaan H1, H2, dan H3 yang konsisten membantu LLM mengekstrak poin penting dari artikel Anda.",
     category: "Tutorial",
+    tags: ["SEO", "GEO", "CMS"],
     featuredImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
     status: "published",
     adapters: ["WordPress", "Astro", "Facebook"],
@@ -35,6 +36,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "strategi-content-marketing-write-once-publish-everywhere",
     body: "Mengatasi masalah redundansi pembuatan konten di berbagai media sosial dan platform CMS melalui arsitektur adapter Wontent.\n\nTim marketing sering kehabisan waktu karena harus memposting ulang artikel yang sama ke berbagai channel secara manual.",
     category: "Marketing",
+    tags: ["Marketing", "MultiPlatform"],
     featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
     status: "published",
     adapters: ["WordPress", "Next.js", "LinkedIn"],
@@ -53,6 +55,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "cara-integrasi-headless-cms-dengan-astro-adapter",
     body: "Tutorial teknis mengintegrasikan Wontent Content Hub API ke dalam Astro static site generator menggunakan SDK @wontent/sdk.",
     category: "Engineering",
+    tags: ["Astro", "SDK", "Headless"],
     featuredImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
     status: "scheduled",
     adapters: ["Astro"],
@@ -71,6 +74,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "meningkatkan-readability-konten-menggunakan-ai-assistant",
     body: "Teknik memanfaatkan AI Assistant untuk memperbaiki struktur tata bahasa, variasi kata, dan skor keterbacaan artikel secara otomatis.",
     category: "AI & Automation",
+    tags: ["AI", "Readability"],
     featuredImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=800&q=80",
     status: "draft",
     adapters: ["WordPress", "Facebook"],
@@ -89,6 +93,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "trend-micro-animations-untuk-user-experience",
     body: "Ulasan tren micro-animations pada antarmuka web modern untuk meningkatkan engagement dan pengalaman interaksi pengguna.",
     category: "Design",
+    tags: ["Design", "UIUX"],
     featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80",
     status: "archived",
     adapters: ["WordPress"],
@@ -219,6 +224,25 @@ function Page() {
     }).catch(() => {});
   };
 
+  const handleStatusChange = (id: string, newStatus: ContentItem["status"]) => {
+    setArticles((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              status: newStatus,
+              publishDate: newStatus === "published" ? new Date().toLocaleString() : item.publishDate,
+            }
+          : item
+      )
+    );
+    fetch(`http://localhost:3000/contents/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    }).catch(() => {});
+  };
+
   if (viewMode === "editor") {
     return (
       <ContentEditor
@@ -244,7 +268,7 @@ function Page() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button onClick={handleOpenCreate}>
+          <Button onClick={handleOpenCreate} className="rounded-md">
             <Plus className="mr-1.5 size-4" />
             Create Article
           </Button>
@@ -258,7 +282,7 @@ function Page() {
         onDelete={handleDeleteArticle}
         onPublish={handlePublishArticle}
         onArchive={handleArchiveArticle}
-        onCreateNew={handleOpenCreate}
+        onStatusChange={handleStatusChange}
       />
     </div>
   );

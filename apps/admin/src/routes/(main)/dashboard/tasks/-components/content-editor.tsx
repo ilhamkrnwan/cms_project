@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
-  CheckCircle2,
   FileText,
   Globe,
   Image as ImageIcon,
+  Plus,
   Save,
   Search,
   Send,
   Sparkles,
+  Tag as TagIcon,
+  X,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +27,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { ContentItem } from "./content-dialog";
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  slug: string;
+  body: string;
+  category: string;
+  tags?: string[];
+  featuredImage?: string;
+  status: "published" | "scheduled" | "draft" | "archived";
+  publishDate?: string;
+  adapters: string[];
+  seoMetadata?: {
+    seoTitle?: string;
+    metaDescription?: string;
+    keywords?: string;
+  };
+  seoScore?: number;
+  geoScore?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 interface ContentEditorProps {
   initialData?: ContentItem | null;
@@ -71,6 +94,8 @@ export function ContentEditor({
   const [slug, setSlug] = useState("");
   const [isSlugCustom, setIsSlugCustom] = useState(false);
   const [category, setCategory] = useState("Tutorial");
+  const [tags, setTags] = useState<string[]>(["SEO", "CMS"]);
+  const [tagInput, setTagInput] = useState("");
   const [body, setBody] = useState("");
   const [featuredImage, setFeaturedImage] = useState("");
   const [status, setStatus] = useState<ContentItem["status"]>("draft");
@@ -88,6 +113,7 @@ export function ContentEditor({
       setSlug(initialData.slug || "");
       setIsSlugCustom(true);
       setCategory(initialData.category || "Tutorial");
+      setTags(initialData.tags || ["SEO", "CMS"]);
       setBody(initialData.body || "");
       setFeaturedImage(initialData.featuredImage || "");
       setStatus(initialData.status || "draft");
@@ -109,6 +135,18 @@ export function ContentEditor({
     }
   };
 
+  const handleAddTag = () => {
+    const trimmed = tagInput.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter((t) => t !== tagToRemove));
+  };
+
   const toggleAdapter = (adapterId: string) => {
     setSelectedAdapters((prev) =>
       prev.includes(adapterId)
@@ -125,6 +163,7 @@ export function ContentEditor({
       slug: slug || slugify(title || "untitled-article"),
       body,
       category,
+      tags,
       featuredImage,
       status: finalStatus,
       publishDate: finalStatus === "published" ? new Date().toLocaleString() : publishDate,
@@ -148,7 +187,7 @@ export function ContentEditor({
             variant="outline"
             size="sm"
             onClick={onCancel}
-            className="gap-1.5"
+            className="gap-1.5 rounded-md"
           >
             <ArrowLeft className="size-4" />
             Back to Articles
@@ -168,7 +207,7 @@ export function ContentEditor({
             variant="outline"
             size="sm"
             onClick={() => handleSave("draft")}
-            className="gap-1.5"
+            className="gap-1.5 rounded-md"
           >
             <Save className="size-4" />
             Save Draft
@@ -176,7 +215,7 @@ export function ContentEditor({
           <Button
             size="sm"
             onClick={() => handleSave("published")}
-            className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
           >
             <Send className="size-4" />
             Publish Now
@@ -189,8 +228,8 @@ export function ContentEditor({
         {/* LEFT MAIN COLUMN (2/3 width) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Article Title & Slug Box */}
-          <Card className="p-6 space-y-4 shadow-xs">
-            <div className="space-y-1">
+          <Card className="p-6 space-y-4 shadow-xs rounded-lg">
+            <div className="space-y-2">
               <Input
                 placeholder="Enter article title here..."
                 value={title}
@@ -206,7 +245,7 @@ export function ContentEditor({
                     setSlug(e.target.value);
                     setIsSlugCustom(true);
                   }}
-                  className="h-6 text-xs font-mono w-full max-w-md py-0 border-muted focus-visible:ring-1"
+                  className="h-6 text-xs font-mono w-full max-w-md py-0 border-muted focus-visible:ring-1 rounded-sm"
                   placeholder="article-url-slug"
                 />
               </div>
@@ -214,7 +253,7 @@ export function ContentEditor({
           </Card>
 
           {/* Spacious Body Editor Canvas */}
-          <Card className="p-6 space-y-3 shadow-xs">
+          <Card className="p-6 space-y-3 shadow-xs rounded-lg">
             <div className="flex items-center justify-between border-b pb-2">
               <Label className="text-sm font-semibold flex items-center gap-1.5">
                 <FileText className="size-4 text-primary" />
@@ -234,17 +273,17 @@ export function ContentEditor({
           </Card>
 
           {/* SEO & GEO Optimization Card */}
-          <Card className="p-6 space-y-4 shadow-xs border-purple-500/20 bg-purple-500/5">
+          <Card className="p-6 space-y-4 shadow-xs rounded-lg border-purple-500/20 bg-purple-500/5">
             <div className="flex items-center justify-between border-b border-purple-500/20 pb-3">
               <div className="flex items-center gap-2 font-bold text-base text-purple-700 dark:text-purple-300">
                 <Sparkles className="size-5 text-purple-600 dark:text-purple-400" />
                 SEO & GEO Engine Optimization
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 rounded-xs">
                   SEO: {initialData?.seoScore || 94}/100
                 </Badge>
-                <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20">
+                <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-500/20 rounded-xs">
                   GEO: {initialData?.geoScore || 90}/100
                 </Badge>
               </div>
@@ -261,7 +300,7 @@ export function ContentEditor({
                   placeholder="Optimized headline displayed in search engines"
                   value={seoTitle}
                   onChange={(e) => setSeoTitle(e.target.value)}
-                  className="bg-card"
+                  className="bg-card rounded-md"
                 />
               </div>
 
@@ -275,7 +314,7 @@ export function ContentEditor({
                   placeholder="Compelling description for Google search results page snippet..."
                   value={metaDescription}
                   onChange={(e) => setMetaDescription(e.target.value)}
-                  className="bg-card"
+                  className="bg-card rounded-md"
                 />
               </div>
 
@@ -288,7 +327,7 @@ export function ContentEditor({
                   placeholder="cms, content hub, write once publish everywhere"
                   value={keywords}
                   onChange={(e) => setKeywords(e.target.value)}
-                  className="bg-card"
+                  className="bg-card rounded-md"
                 />
               </div>
             </div>
@@ -298,7 +337,7 @@ export function ContentEditor({
         {/* RIGHT SIDEBAR (1/3 width) */}
         <div className="space-y-6">
           {/* Status & Publishing Box */}
-          <Card className="p-5 space-y-4 shadow-xs">
+          <Card className="p-5 space-y-4 shadow-xs rounded-lg">
             <CardHeader className="p-0 border-b pb-3">
               <CardTitle className="text-sm font-semibold">Publishing Settings</CardTitle>
             </CardHeader>
@@ -309,7 +348,7 @@ export function ContentEditor({
                   value={status}
                   onValueChange={(val) => setStatus(val as ContentItem["status"])}
                 >
-                  <SelectTrigger id="status">
+                  <SelectTrigger id="status" className="rounded-md">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -329,13 +368,14 @@ export function ContentEditor({
                     type="datetime-local"
                     value={publishDate}
                     onChange={(e) => setPublishDate(e.target.value)}
+                    className="rounded-md"
                   />
                 </div>
               )}
 
               <Button
                 type="button"
-                className="w-full"
+                className="w-full rounded-md"
                 onClick={() => handleSave()}
               >
                 {isEditing ? "Save Changes" : "Save Article"}
@@ -343,30 +383,72 @@ export function ContentEditor({
             </CardContent>
           </Card>
 
-          {/* Category Box */}
-          <Card className="p-5 space-y-4 shadow-xs">
+          {/* Category & Tags Box */}
+          <Card className="p-5 space-y-4 shadow-xs rounded-lg">
             <CardHeader className="p-0 border-b pb-3">
-              <CardTitle className="text-sm font-semibold">Taxonomy & Category</CardTitle>
+              <CardTitle className="text-sm font-semibold">Category & Tags</CardTitle>
             </CardHeader>
-            <CardContent className="p-0 space-y-2 pt-1">
-              <Label htmlFor="category" className="text-xs font-medium">Article Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
+            <CardContent className="p-0 space-y-4 pt-1">
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-xs font-medium">Article Category</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger id="category" className="rounded-md">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tags Input Manager */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium flex items-center gap-1.5">
+                  <TagIcon className="size-3.5 text-primary" />
+                  Article Tags
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add tag (e.g. SEO, Bun)"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
+                    className="text-xs rounded-md"
+                  />
+                  <Button type="button" size="sm" variant="outline" onClick={handleAddTag} className="shrink-0 rounded-md">
+                    <Plus className="size-3.5" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {tags.map((tag) => (
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="text-xs font-normal rounded-sm px-2 py-0.5 flex items-center gap-1 bg-muted hover:bg-muted/80"
+                    >
+                      #{tag}
+                      <X
+                        className="size-3 cursor-pointer text-muted-foreground hover:text-foreground ml-0.5"
+                        onClick={() => handleRemoveTag(tag)}
+                      />
+                    </Badge>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
           {/* Target Platform Adapters */}
-          <Card className="p-5 space-y-4 shadow-xs">
+          <Card className="p-5 space-y-4 shadow-xs rounded-lg">
             <CardHeader className="p-0 border-b pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
                 <Globe className="size-4 text-blue-500" />
@@ -381,7 +463,7 @@ export function ContentEditor({
                 {AVAILABLE_ADAPTERS.map((adapter) => (
                   <div
                     key={adapter.id}
-                    className="flex items-center space-x-2 rounded-lg border p-2.5 hover:bg-muted/50 cursor-pointer"
+                    className="flex items-center space-x-2 rounded-md border p-2 hover:bg-muted/50 cursor-pointer"
                     onClick={() => toggleAdapter(adapter.id)}
                   >
                     <Checkbox
@@ -402,7 +484,7 @@ export function ContentEditor({
           </Card>
 
           {/* Featured Image Box */}
-          <Card className="p-5 space-y-4 shadow-xs">
+          <Card className="p-5 space-y-4 shadow-xs rounded-lg">
             <CardHeader className="p-0 border-b pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
                 <ImageIcon className="size-4 text-emerald-500" />
@@ -414,11 +496,11 @@ export function ContentEditor({
                 placeholder="https://images.unsplash.com/photo-..."
                 value={featuredImage}
                 onChange={(e) => setFeaturedImage(e.target.value)}
-                className="text-xs"
+                className="text-xs rounded-md"
               />
 
               {featuredImage ? (
-                <div className="relative h-44 rounded-lg border overflow-hidden bg-muted">
+                <div className="relative h-44 rounded-md border overflow-hidden bg-muted">
                   <img
                     src={featuredImage}
                     alt="Featured Preview"
@@ -427,7 +509,7 @@ export function ContentEditor({
                   />
                 </div>
               ) : (
-                <div className="h-32 rounded-lg border border-dashed flex flex-col items-center justify-center text-muted-foreground text-xs gap-1">
+                <div className="h-32 rounded-md border border-dashed flex flex-col items-center justify-center text-muted-foreground text-xs gap-1">
                   <ImageIcon className="size-6 opacity-50" />
                   <span>No featured image set</span>
                 </div>
