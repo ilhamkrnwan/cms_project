@@ -253,16 +253,55 @@ function Page() {
     );
   }
 
+  const handleBulkPublish = (ids: string[]) => {
+    setArticles((prev) =>
+      prev.map((item) =>
+        ids.includes(item.id)
+          ? { ...item, status: "published", publishDate: new Date().toLocaleString() }
+          : item
+      )
+    );
+    ids.forEach((id) => {
+      fetch(`http://localhost:3000/contents/${id}/publish`, { method: "POST" }).catch(() => {});
+    });
+  };
+
+  const handleBulkArchive = (ids: string[]) => {
+    setArticles((prev) =>
+      prev.map((item) => (ids.includes(item.id) ? { ...item, status: "archived" } : item))
+    );
+    ids.forEach((id) => {
+      fetch(`http://localhost:3000/contents/${id}/archive`, { method: "POST" }).catch(() => {});
+    });
+  };
+
+  const handleBulkDelete = (ids: string[]) => {
+    setArticles((prev) => prev.filter((item) => !ids.includes(item.id)));
+    ids.forEach((id) => {
+      fetch(`http://localhost:3000/contents/${id}`, { method: "DELETE" }).catch(() => {});
+    });
+  };
+
+  if (viewMode === "editor") {
+    return (
+      <ContentEditor
+        initialData={editingArticle}
+        onSave={handleSaveArticle}
+        onCancel={() => setViewMode("list")}
+      />
+    );
+  }
+
   return (
-    <div data-content-padding="false" className="-m-4 md:-m-6 flex flex-col min-h-[calc(100vh-3rem)] bg-background">
+    <div className="flex flex-col gap-6 p-6 font-sans max-w-[1600px] mx-auto w-full">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b px-6 py-4 bg-card">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
         <div>
           <div className="flex items-center gap-2">
             <FileText className="size-6 text-primary" />
-            <h1 className="text-2xl font-bold tracking-tight">Articles & Content Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Articles & Content Management</h1>
           </div>
-          <p className="text-muted-foreground text-xs mt-0.5">
+          <p className="text-muted-foreground text-sm mt-1">
             Create, edit, publish, schedule, and distribute articles across connected platform adapters.
           </p>
         </div>
@@ -283,6 +322,9 @@ function Page() {
         onPublish={handlePublishArticle}
         onArchive={handleArchiveArticle}
         onStatusChange={handleStatusChange}
+        onBulkPublish={handleBulkPublish}
+        onBulkArchive={handleBulkArchive}
+        onBulkDelete={handleBulkDelete}
       />
     </div>
   );
