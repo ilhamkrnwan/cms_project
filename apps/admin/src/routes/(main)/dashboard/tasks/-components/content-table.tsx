@@ -34,7 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ContentItem } from "./content-dialog";
+import type { ContentItem } from "./content-editor";
 
 interface ContentTableProps {
   data: ContentItem[];

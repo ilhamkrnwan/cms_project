@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileText, Globe, Plus, Sparkles } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ContentDialog, type ContentItem } from "./-components/content-dialog";
+import { ContentEditor, type ContentItem } from "./-components/content-editor";
 import { ContentTable } from "./-components/content-table";
 
 export const Route = createFileRoute("/(main)/dashboard/tasks")({
@@ -15,9 +15,9 @@ const INITIAL_ARTICLES: ContentItem[] = [
     id: "cnt_101",
     title: "Panduan Lengkap Optimasi SEO & GEO untuk CMS Modern",
     slug: "panduan-lengkap-optimasi-seo-geo-cms",
-    body: "Panduan lengkap langkah demi langkah untuk mengoptimalkan konten website terhadap Google Search dan AI Generative Search Engines seperti ChatGPT & Perplexity.",
+    body: "Panduan lengkap langkah demi langkah untuk mengoptimalkan konten website terhadap Google Search dan AI Generative Search Engines seperti ChatGPT & Perplexity.\n\nDalam era digital modern, membuat konten berkualitas saja tidak cukup. Konten harus terstruktur secara rapi agar mudah dipahami baik oleh crawler mesin pencari (SEO) maupun Large Language Model (GEO).\n\n### 1. Struktur Heading yang Disukai AI\nPenggunaan H1, H2, dan H3 yang konsisten membantu LLM mengekstrak poin penting dari artikel Anda.",
     category: "Tutorial",
-    featuredImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=500&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80",
     status: "published",
     adapters: ["WordPress", "Astro", "Facebook"],
     seoScore: 96,
@@ -33,9 +33,9 @@ const INITIAL_ARTICLES: ContentItem[] = [
     id: "cnt_102",
     title: "Strategi Content Marketing dengan Write Once Publish Everywhere",
     slug: "strategi-content-marketing-write-once-publish-everywhere",
-    body: "Mengatasi masalah redundansi pembuatan konten di berbagai media sosial dan platform CMS melalui arsitektur adapter Wontent.",
+    body: "Mengatasi masalah redundansi pembuatan konten di berbagai media sosial dan platform CMS melalui arsitektur adapter Wontent.\n\nTim marketing sering kehabisan waktu karena harus memposting ulang artikel yang sama ke berbagai channel secara manual.",
     category: "Marketing",
-    featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
     status: "published",
     adapters: ["WordPress", "Next.js", "LinkedIn"],
     seoScore: 94,
@@ -53,7 +53,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "cara-integrasi-headless-cms-dengan-astro-adapter",
     body: "Tutorial teknis mengintegrasikan Wontent Content Hub API ke dalam Astro static site generator menggunakan SDK @wontent/sdk.",
     category: "Engineering",
-    featuredImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
     status: "scheduled",
     adapters: ["Astro"],
     seoScore: 88,
@@ -71,7 +71,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "meningkatkan-readability-konten-menggunakan-ai-assistant",
     body: "Teknik memanfaatkan AI Assistant untuk memperbaiki struktur tata bahasa, variasi kata, dan skor keterbacaan artikel secara otomatis.",
     category: "AI & Automation",
-    featuredImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=500&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=800&q=80",
     status: "draft",
     adapters: ["WordPress", "Facebook"],
     seoScore: 82,
@@ -89,7 +89,7 @@ const INITIAL_ARTICLES: ContentItem[] = [
     slug: "trend-micro-animations-untuk-user-experience",
     body: "Ulasan tren micro-animations pada antarmuka web modern untuk meningkatkan engagement dan pengalaman interaksi pengguna.",
     category: "Design",
-    featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=500&q=80",
+    featuredImage: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&q=80",
     status: "archived",
     adapters: ["WordPress"],
     seoScore: 90,
@@ -105,66 +105,59 @@ const INITIAL_ARTICLES: ContentItem[] = [
 
 function Page() {
   const [articles, setArticles] = useState<ContentItem[]>(INITIAL_ARTICLES);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "editor">("list");
   const [editingArticle, setEditingArticle] = useState<ContentItem | null>(null);
 
   // Fetch articles from API server if running
   useEffect(() => {
     fetch("http://localhost:3000/contents")
-      ? fetch("http://localhost:3000/contents")
-          .then((res) => res.json())
-          .then((res) => {
-            if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-              const mapped: ContentItem[] = res.data.map((item: any) => ({
-                id: item.id,
-                title: item.title,
-                slug: item.slug,
-                body: item.body || "",
-                category: item.category || "Tutorial",
-                featuredImage: item.featuredImage || "",
-                status: item.status || "draft",
-                publishDate: item.publishDate ? new Date(item.publishDate).toISOString().slice(0, 16) : "",
-                adapters: ["WordPress", "Astro"],
-                seoScore: 92,
-                geoScore: 88,
-                seoMetadata: item.seoMetadata,
-              }));
-              setArticles(mapped);
-            }
-          })
-          .catch(() => {
-            // Keep initial articles mock if API server is not reached directly
-          })
-      : null;
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped: ContentItem[] = res.data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            slug: item.slug,
+            body: item.body || "",
+            category: item.category || "Tutorial",
+            featuredImage: item.featuredImage || "",
+            status: item.status || "draft",
+            publishDate: item.publishDate ? new Date(item.publishDate).toISOString().slice(0, 16) : "",
+            adapters: ["WordPress", "Astro"],
+            seoScore: 92,
+            geoScore: 88,
+            seoMetadata: item.seoMetadata,
+          }));
+          setArticles(mapped);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleOpenCreate = () => {
     setEditingArticle(null);
-    setDialogOpen(true);
+    setViewMode("editor");
   };
 
   const handleOpenEdit = (item: ContentItem) => {
     setEditingArticle(item);
-    setDialogOpen(true);
+    setViewMode("editor");
   };
 
   const handleSaveArticle = (formData: Partial<ContentItem>) => {
     if (editingArticle) {
-      // Edit existing
       setArticles((prev) =>
         prev.map((item) =>
           item.id === editingArticle.id ? ({ ...item, ...formData } as ContentItem) : item
         )
       );
 
-      // Attempt API PUT call
       fetch(`http://localhost:3000/contents/${editingArticle.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       }).catch(() => {});
     } else {
-      // Create new
       const newItem: ContentItem = {
         id: `cnt_${Date.now()}`,
         title: formData.title || "Untitled Article",
@@ -175,20 +168,20 @@ function Page() {
         status: formData.status || "draft",
         publishDate: formData.publishDate || (formData.status === "published" ? new Date().toLocaleString() : ""),
         adapters: formData.adapters || ["WordPress"],
-        seoScore: formData.seoScore || 92,
-        geoScore: formData.geoScore || 88,
+        seoScore: formData.seoScore || 94,
+        geoScore: formData.geoScore || 90,
         seoMetadata: formData.seoMetadata,
         createdAt: new Date().toLocaleString(),
       };
       setArticles((prev) => [newItem, ...prev]);
 
-      // Attempt API POST call
       fetch("http://localhost:3000/contents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newItem),
       }).catch(() => {});
     }
+    setViewMode("list");
   };
 
   const handleDeleteArticle = (id: string) => {
@@ -226,6 +219,16 @@ function Page() {
     }).catch(() => {});
   };
 
+  if (viewMode === "editor") {
+    return (
+      <ContentEditor
+        initialData={editingArticle}
+        onSave={handleSaveArticle}
+        onCancel={() => setViewMode("list")}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Page Header */}
@@ -257,15 +260,8 @@ function Page() {
         onArchive={handleArchiveArticle}
         onCreateNew={handleOpenCreate}
       />
-
-      {/* Create & Edit Modal Dialog */}
-      <ContentDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        initialData={editingArticle}
-        onSave={handleSaveArticle}
-      />
     </div>
   );
 }
+
 
