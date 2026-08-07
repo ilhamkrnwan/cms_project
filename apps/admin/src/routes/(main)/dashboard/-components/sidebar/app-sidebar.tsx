@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { Command } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -39,8 +39,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton render={<Link to="/dashboard/default" />}>
-              <Command />
-              <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+              <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                <Sparkles className="size-4" />
+              </div>
+              <span className="font-bold text-base">{APP_CONFIG.name}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

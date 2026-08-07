@@ -2,292 +2,158 @@
 
 > **Write once. Publish everywhere.**
 
-Wontent Content Hub adalah platform manajemen konten modern yang dirancang sebagai pusat distribusi konten untuk berbagai website dan platform sosial media. Tidak seperti CMS tradisional, Wontent berperan sebagai **Content Hub**, memungkinkan pengguna menulis konten sekali, mengoptimalkannya menggunakan AI, kemudian mempublikasikannya ke berbagai tujuan seperti WordPress, Astro, Next.js, hingga Meta (Facebook & Instagram) melalui sistem adapter.
-
-## Vision
-
-Menyediakan satu dashboard modern yang mampu mengelola, mengoptimalkan, dan mendistribusikan konten ke berbagai platform tanpa terikat pada satu CMS atau framework tertentu.
-
-## Philosophy
-
-> Content should be created once and delivered everywhere.
-
-Wontent memisahkan proses:
-
-- Menulis konten
-- Optimasi SEO & GEO
-- Workflow editorial
-- Distribusi konten
-
-dari platform tujuan.
-
-Frontend website dapat menggunakan framework apa pun, sedangkan dashboard tetap menjadi satu sumber pengelolaan konten.
+**Wontent Content Hub** adalah platform manajemen dan distribusi konten modern berbasis Headless / Content Hub. Platform ini memungkinkan pengguna untuk membuat konten sekali, mengoptimalkannya menggunakan kecerdasan buatan (SEO & GEO), dan mempublikasikannya ke berbagai website (WordPress, Astro, Next.js) serta media sosial (Meta, LinkedIn, dll) melalui sistem adapter.
 
 ---
 
-# Why Wontent?
+## 🚀 Fitur Utama
 
-Saat ini perusahaan sering mengalami workflow seperti berikut:
-
-- Menulis artikel di WordPress.
-- Membuat caption Facebook secara manual.
-- Menyalin ulang ke Instagram.
-- Menulis ulang untuk LinkedIn.
-- Membuat thread untuk Threads.
-- Mengelola beberapa website dengan dashboard yang berbeda.
-
-Wontent mengubah workflow tersebut menjadi:
-
-```
-Write Once
-      │
-      ▼
-AI Optimization
-      │
-      ▼
-Publish Everywhere
-```
-
-Satu dashboard.
-
-Satu editor.
-
-Banyak tujuan publish.
+- **Centralized Content Management**: Kelola artikel, draf, revisi, jadwal rilis, serta taksonomi (kategori & tag) dari satu tempat.
+- **Modern Admin Dashboard**: UI/UX cepat dan responsif menggunakan React 19, TanStack Router, Shadcn UI, dan Tailwind CSS v4.
+- **High-Performance API Engine**: Backend super cepat berbasis Bun, ElysiaJS, Drizzle ORM, dan PostgreSQL.
+- **Authentication & Multi-Tenant**: Sistem autentikasi aman dengan Better Auth, mendukung manajemen Organization & Workspace.
+- **Media Library**: Layanan manajemen media terintegrasi S3/MinIO dengan dukungan kompresi & konversi WebP.
+- **SEO & GEO Engine**: Analisis SEO real-time dan optimasi *Generative Engine Optimization* (GEO) agar konten siap untuk pencarian berbasis AI (LLM).
+- **Multi-Platform Adapters (Publish Everywhere)**: Arsitektur adapter modular untuk mempublikasikan konten ke berbagai CMS eksternal dan platform media sosial.
+- **TypeScript SDK**: `@wontent/sdk` untuk integrasi cepat frontend (Astro, React, Next.js, Vue).
 
 ---
 
-# Core Features
+## 🛠️ Tech Stack & Ekosistem
 
-## Modern Dashboard
+Monorepo ini dikelola menggunakan **Bun Workspaces**:
 
-Dashboard modern berbasis Next.js dengan pengalaman pengguna yang cepat, responsif, dan mudah digunakan.
+### Apps (`/apps`)
+| Application | Tech Stack | Port | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| **`admin`** | React 19, Vite, TanStack Router, Tailwind CSS v4, Shadcn UI | `5173` | Dashboard Admin tempat pengelolaan & penulisan konten |
+| **`api`** | ElysiaJS, Bun, Drizzle ORM, Better Auth, PostgreSQL | `3000` | REST API service, Auth, & Swagger Docs (`/swagger`) |
+| **`compro`** | Astro 5, Tailwind CSS | `4321` | Website Company Profile Wontent |
+| **`web`** | Astro 5, `@wontent/sdk` | `4322` | Client Frontend / Blog Website konsumen |
 
-Features:
+### Packages (`/packages`)
+| Package | Deskripsi |
+| :--- | :--- |
+| **`@wontent/sdk`** | SDK TypeScript resmi untuk mengonsumsi API Wontent |
+| **`@wontent/types`** | Shared TypeScript Type Definition untuk seluruh aplikasi |
 
-- Authentication
-- Organizations
-- Workspace
-- Rich Text Editor
-- Media Library
-- Content Draft
-- Scheduled Publishing
-- Revisions
-- Activity Logs
-
----
-
-## AI Content Assistant
-
-AI membantu pengguna menghasilkan konten yang lebih baik.
-
-Features:
-
-- AI Title Generator
-- AI Summary
-- Meta Description Generator
-- FAQ Generator
-- Schema Suggestion
-- Internal Link Suggestion
-- Content Rewrite
-- Multi Platform Rewrite
+### Infrastructure (`docker-compose.yml`)
+- **Database**: PostgreSQL 16
+- **Object Storage**: MinIO (S3-compatible)
+- **Local Mail Testing**: Mailpit
 
 ---
 
-## SEO Optimization
+## 📁 Struktur Direktori
 
-Membantu menghasilkan halaman yang ramah mesin pencari.
-
-Features:
-
-- SEO Score
-- Readability Analysis
-- Heading Structure
-- Meta Preview
-- OpenGraph Preview
-- Twitter Card Preview
-- Canonical Validation
-- Schema Recommendation
-
----
-
-## GEO Optimization
-
-Di era AI Search, konten perlu mudah dipahami oleh Large Language Model.
-
-Wontent menyediakan analisis Generative Engine Optimization (GEO).
-
-Features:
-
-- Entity Detection
-- Question Coverage
-- FAQ Recommendation
-- AI Readability
-- Citation Suggestion
-- Structured Content Analysis
-- AI Search Readiness Score
-
----
-
-## Multi Platform Publishing
-
-Publish sekali ke berbagai platform.
-
-Supported targets (Roadmap):
-
-- WordPress
-- Astro
-- Next.js
-- Nuxt
-- Facebook Page
-- Instagram Business
-- Threads
-- LinkedIn
-- Telegram
-- WhatsApp Channel
-- Google Business Profile
-
----
-
-## Adapter Architecture
-
-Wontent menggunakan sistem Adapter.
-
-```
-           Content
-               │
-        ┌──────┼──────┐
-        │      │      │
-   WordPress Astro  Next.js
-        │
-      Meta
-```
-
-Setiap platform memiliki adapter sendiri sehingga dashboard tidak bergantung pada teknologi tertentu.
-
----
-
-# Architecture
-
-```
-apps/
-├── admin/
-├── api/
-
-packages/
-├── sdk/
-├── types/
-├── adapters/
-│   ├── wordpress/
-│   ├── astro/
-│   ├── next/
-│   ├── meta/
-│   └── ...
-└── ui/
+```text
+cms_project/
+├── apps/
+│   ├── admin/          # Frontend Dashboard Admin (Vite + React)
+│   ├── api/            # Backend API Service (ElysiaJS + Bun)
+│   ├── compro/         # Company Profile Website (Astro)
+│   └── web/            # Public Client App (Astro)
+├── packages/
+│   ├── sdk/            # Wontent Client SDK
+│   └── types/          # Shared TypeScript Interfaces & Types
+├── docs/               # Dokumentasi Teknis, PRD, & Roadmap
+├── docker-compose.yml  # Pengaturan layanan PostgreSQL, MinIO, Mailpit
+└── package.json        # Root Workspace Configuration
 ```
 
 ---
 
-# Tech Stack
+## 🏎️ Panduan Memulai (Getting Started)
 
-## Frontend
+### Prasyarat (Prerequisites)
+- [Bun](https://bun.sh/) (v1.1+)
+- [Docker](https://www.docker.com/) & Docker Compose
 
-- Next.js
-- shadcn/ui
-- Tailwind CSS
-- React Query
-- React Hook Form
+### 1. Clone & Install Dependencies
 
-## Backend
+```bash
+# Clone repository
+git clone <repository-url>
+cd cms_project
 
-- Bun
-- Elysia
-- Drizzle ORM
+# Install seluruh dependencies di monorepo
+bun install
+```
 
-## Database
+### 2. Environment Variables
 
-- PostgreSQL
+Salin `.env.example` menjadi `.env` di root repository:
 
-## Authentication
+```bash
+cp .env.example .env
+```
 
-- Better Auth
+### 3. Jalankan Service Infrastructure (Docker)
 
-## Storage
+Jalankan database PostgreSQL, MinIO storage, dan Mailpit:
 
-- S3 Compatible Storage
-- MinIO
+```bash
+bun docker:up
+# Atau: docker compose up -d
+```
 
----
+### 4. Database Setup & Migration
 
-# Roadmap
+Jalankan migrasi database dan seeding data awal:
 
-## Phase 1
+```bash
+# Generate dan Push Schema Drizzle
+bun --filter @wontent/api db:push
 
-- Authentication
-- Dashboard
-- Workspace
-- Rich Editor
-- Media Library
-- WordPress Adapter
-- SEO Analysis
+# (Opsional) Seed data awal
+bun --filter @wontent/api db:seed
+```
 
----
+### 5. Jalankan Mode Development
 
-## Phase 2
+Untuk menjalankan seluruh aplikasi secara bersamaan:
 
-- Facebook Integration
-- Instagram Integration
-- AI Rewrite
-- Scheduler
-- Content Calendar
+```bash
+bun dev
+```
 
----
+Atau jalankan aplikasi tertentu secara spesifik:
 
-## Phase 3
+```bash
+# Admin Dashboard saja (port 5173)
+bun dev:admin
 
-- Astro Adapter
-- Next Adapter
-- Nuxt Adapter
-- Webhooks
-- Plugin System
+# API Server saja (port 3000)
+bun dev:api
 
----
-
-## Phase 4
-
-- GEO Analysis
-- AI Content Planner
-- Analytics
-- Team Collaboration
-- Marketplace
+# Company Profile (port 4321)
+bun dev:compro
+```
 
 ---
 
-# Target Users
+## 📜 Available Scripts
 
-- Digital Agencies
-- Freelancers
-- Marketing Teams
-- Content Writers
-- SEO Specialists
-- Startup Teams
-- Multi-brand Companies
-
----
-
-# Future Vision
-
-Wontent bukan sekadar Headless CMS.
-
-Wontent adalah **Content Operating System** yang menjadi pusat pengelolaan, optimasi, kolaborasi, dan distribusi konten ke berbagai platform.
-
-Website hanyalah salah satu tujuan publish.
-
-Media sosial hanyalah tujuan lainnya.
-
-Dengan pendekatan adapter, Wontent dapat berkembang mendukung platform baru tanpa mengubah pengalaman pengguna di dashboard.
+| Script | Deskripsi |
+| :--- | :--- |
+| `bun dev` | Jalankan semua aplikasi secara paralel |
+| `bun build` | Build seluruh aplikasi untuk produksi |
+| `bun typecheck` | Validasi tipe TypeScript di seluruh workspace |
+| `bun docker:up` | Jalankan Docker Compose (PostgreSQL, MinIO, Mailpit) |
+| `bun docker:down` | Matikan seluruh kontainer Docker |
 
 ---
 
-# Motto
+## 📑 Dokumentasi Lanjutan
 
-> **Write Once. Optimize with AI. Publish Everywhere.**
+Dokumentasi detail mengenai spesifikasi produk dan roadmap pengembang dapat ditemukan di folder `docs/`:
+
+- [Product Requirement Document (PRD)](file:///c:/KAIRAV/project/cms_project/docs/PRD.md)
+- [Technical Overview Docs](file:///c:/KAIRAV/project/cms_project/docs/README.md)
+- [Development TODO & Roadmap](file:///c:/KAIRAV/project/cms_project/docs/TODO.md)
+
+---
+
+## 📄 Lisensi
+
+Private & Confidential — Wontent Team.

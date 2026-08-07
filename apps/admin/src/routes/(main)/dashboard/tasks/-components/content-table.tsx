@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
   Search,
   Send,
+  SlidersHorizontal,
   Sparkles,
   Tag as TagIcon,
   Trash2,
@@ -28,8 +29,10 @@ import {
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -63,6 +66,49 @@ interface ContentTableProps {
   onBulkArchive?: (ids: string[]) => void;
   onBulkDelete?: (ids: string[]) => void;
 }
+
+export type ColumnId =
+  | "title"
+  | "category"
+  | "status"
+  | "adapters"
+  | "seo"
+  | "geo"
+  | "date"
+  | "actions";
+
+const COLUMN_LABELS: Record<ColumnId, string> = {
+  title: "Article Title & Slug",
+  category: "Category & Tags",
+  status: "Inline Status",
+  adapters: "Target Adapters",
+  seo: "SEO Score",
+  geo: "GEO Score",
+  date: "Publish Date",
+  actions: "Actions",
+};
+
+const DEFAULT_VISIBLE_COLUMNS: Record<ColumnId, boolean> = {
+  title: true,
+  category: true,
+  status: true,
+  adapters: true,
+  seo: true,
+  geo: true,
+  date: true,
+  actions: true,
+};
+
+const COLUMN_ORDER: ColumnId[] = [
+  "title",
+  "category",
+  "status",
+  "adapters",
+  "seo",
+  "geo",
+  "date",
+  "actions",
+];
 
 const statusBadgeStyles: Record<
   ContentItem["status"],
@@ -105,12 +151,24 @@ export function ContentTable({
   const [activeTab, setActiveTab] = useState<string>("all");
   const [previewArticle, setPreviewArticle] = useState<ContentItem | null>(null);
 
+  // Column visibility state
+  const [visibleColumns, setVisibleColumns] = useState<Record<ColumnId, boolean>>(
+    DEFAULT_VISIBLE_COLUMNS
+  );
+
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Pagination state
   const [pageSize, setPageSize] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const toggleColumnVisibility = (colId: ColumnId) => {
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [colId]: !prev[colId],
+    }));
+  };
 
   const filteredData = data.filter((item) => {
     const matchesSearch =
@@ -180,21 +238,67 @@ export function ContentTable({
     }
   };
 
+  const visibleColumnCount =
+    1 + Object.values(visibleColumns).filter(Boolean).length;
+
+  const lastVisibleCol = [...COLUMN_ORDER]
+    .reverse()
+    .find((col) => visibleColumns[col]);
+
   return (
-    <div className="flex flex-col flex-1 w-full min-h-0 bg-background">
-      {/* Top Toolbar: Search & Status Filters (Flush Edge-to-Edge) */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-6 py-3.5 border-b bg-card">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by title, slug, category, or #tag..."
-            className="pl-9 h-9 text-xs rounded-md bg-muted/20"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+    <div className="flex flex-col flex-1 min-h-0 w-full bg-background font-sans relative overflow-hidden">
+      {/* Top Toolbar: Search, Column Picker & Status Filters */}
+      <div className="shrink-0 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between px-6 py-3 border-b bg-card">
+        <div className="flex flex-1 items-center gap-3 max-w-lg">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by title, slug, category, or #tag..."
+              className="pl-9 h-9 text-xs rounded-md bg-muted/20"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+
+          {/* Fitur Tampil / Sembunyi Kolom (Column Visibility Toggle) */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 text-xs gap-1.5 rounded-md px-3 border-dashed shrink-0"
+              >
+                <SlidersHorizontal className="size-3.5" />
+                <span className="hidden sm:inline">Columns</span>
+                <Badge
+                  variant="secondary"
+                  className="ml-0.5 rounded-xs px-1 py-0 text-[10px] font-mono font-semibold"
+                >
+                  {Object.values(visibleColumns).filter(Boolean).length}/
+                  {COLUMN_ORDER.length}
+                </Badge>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel className="text-xs font-semibold">
+                Tampilkan Kolom
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {COLUMN_ORDER.map((colId) => (
+                <DropdownMenuCheckboxItem
+                  key={colId}
+                  checked={visibleColumns[colId]}
+                  onCheckedChange={() => toggleColumnVisibility(colId)}
+                  className="text-xs cursor-pointer"
+                >
+                  {COLUMN_LABELS[colId]}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Status Filter Tabs */}
@@ -205,7 +309,7 @@ export function ContentTable({
             setActiveTab(val);
             setCurrentPage(1);
           }}
-          className="w-full md:w-auto"
+          className="w-full lg:w-auto"
         >
           <TabsList className="grid grid-cols-5 h-9 p-0.5 rounded-md bg-muted/60 text-xs">
             <TabsTrigger value="all" className="rounded-xs text-xs px-2.5">
@@ -227,81 +331,93 @@ export function ContentTable({
         </Tabs>
       </div>
 
-      {/* FLOATING BULK ACTIONS BAR */}
-      {selectedIds.length > 0 && (
-        <div className="mx-6 my-3 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-2.5 shadow-xs">
-          <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-            <CheckCircle2 className="size-4" />
-            <span>{selectedIds.length} article(s) selected</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleExecuteBulkPublish}
-              className="h-8 text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 gap-1 rounded-md"
-            >
-              <Send className="size-3.5" />
-              Bulk Publish
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleExecuteBulkArchive}
-              className="h-8 text-xs border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 gap-1 rounded-md"
-            >
-              <Archive className="size-3.5" />
-              Bulk Archive
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={handleExecuteBulkDelete}
-              className="h-8 text-xs gap-1 rounded-md"
-            >
-              <Trash2 className="size-3.5" />
-              Bulk Delete
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setSelectedIds([])}
-              className="h-8 text-xs text-muted-foreground rounded-md"
-            >
-              Clear
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Flush Edge-to-Edge Table with Comfortable Inner Cell Padding (px-6 py-3.5) */}
-      <div className="relative w-full flex-1 overflow-x-auto bg-card">
+      {/* Main Table Scroll Container (Single scroll area for table data) */}
+      <div className="relative flex-1 min-h-0 overflow-auto bg-card">
         <Table className="w-full border-none">
           <TableHeader className="bg-muted/40 sticky top-0 z-10 backdrop-blur-xs">
             <TableRow className="hover:bg-transparent border-b">
-              <TableHead className="w-12 py-3.5 pl-6 pr-2">
+              <TableHead className="w-10 py-3.5 pl-6 pr-2">
                 <Checkbox
                   checked={isAllPaginatedSelected}
                   onCheckedChange={toggleSelectAll}
                 />
               </TableHead>
-              <TableHead className="w-[340px] text-xs font-semibold py-3.5 px-6">Article Title & Slug</TableHead>
-              <TableHead className="text-xs font-semibold py-3.5 px-6">Category & Tags</TableHead>
-              <TableHead className="text-xs font-semibold py-3.5 px-6">Inline Status</TableHead>
-              <TableHead className="text-xs font-semibold py-3.5 px-6">Target Adapters</TableHead>
-              <TableHead className="text-center text-xs font-semibold py-3.5 px-6">SEO</TableHead>
-              <TableHead className="text-center text-xs font-semibold py-3.5 px-6">GEO</TableHead>
-              <TableHead className="text-xs font-semibold py-3.5 px-6">Date</TableHead>
-              <TableHead className="text-right text-xs font-semibold py-3.5 pr-6">Actions</TableHead>
+              {visibleColumns.title && (
+                <TableHead
+                  className={`w-[340px] text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "title" ? "pr-6" : ""
+                  }`}
+                >
+                  Article Title & Slug
+                </TableHead>
+              )}
+              {visibleColumns.category && (
+                <TableHead
+                  className={`text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "category" ? "pr-6" : ""
+                  }`}
+                >
+                  Category & Tags
+                </TableHead>
+              )}
+              {visibleColumns.status && (
+                <TableHead
+                  className={`text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "status" ? "pr-6" : ""
+                  }`}
+                >
+                  Inline Status
+                </TableHead>
+              )}
+              {visibleColumns.adapters && (
+                <TableHead
+                  className={`text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "adapters" ? "pr-6" : ""
+                  }`}
+                >
+                  Target Adapters
+                </TableHead>
+              )}
+              {visibleColumns.seo && (
+                <TableHead
+                  className={`text-center text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "seo" ? "pr-6" : ""
+                  }`}
+                >
+                  SEO
+                </TableHead>
+              )}
+              {visibleColumns.geo && (
+                <TableHead
+                  className={`text-center text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "geo" ? "pr-6" : ""
+                  }`}
+                >
+                  GEO
+                </TableHead>
+              )}
+              {visibleColumns.date && (
+                <TableHead
+                  className={`text-xs font-semibold py-3.5 px-4 ${
+                    lastVisibleCol === "date" ? "pr-6" : ""
+                  }`}
+                >
+                  Date
+                </TableHead>
+              )}
+              {visibleColumns.actions && (
+                <TableHead className="text-right text-xs font-semibold py-3.5 pr-6 pl-3">
+                  Actions
+                </TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
-                  className="h-36 text-center text-muted-foreground text-xs"
+                  colSpan={visibleColumnCount}
+                  className="h-36 text-center text-muted-foreground text-xs py-4 px-6"
                 >
                   No articles match your search or filter.
                 </TableCell>
@@ -312,7 +428,9 @@ export function ContentTable({
                 return (
                   <TableRow
                     key={article.id}
-                    className={`hover:bg-muted/30 border-b transition-colors ${isSelected ? "bg-primary/5" : ""}`}
+                    className={`hover:bg-muted/30 border-b transition-colors ${
+                      isSelected ? "bg-primary/5" : ""
+                    }`}
                   >
                     {/* Checkbox Column */}
                     <TableCell className="py-3.5 pl-6 pr-2">
@@ -323,161 +441,232 @@ export function ContentTable({
                     </TableCell>
 
                     {/* Title & Slug Column */}
-                    <TableCell className="py-3.5 px-6">
-                      <div className="flex items-center gap-3">
-                        {article.featuredImage && (
-                          <div className="size-9 rounded border overflow-hidden shrink-0 hidden sm:block bg-muted">
-                            <img
-                              src={article.featuredImage}
-                              alt=""
-                              className="size-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <div className="min-w-0 space-y-0.5">
-                          <div
-                            onClick={() => onEdit(article)}
-                            className="font-semibold text-xs truncate max-w-xs hover:text-primary cursor-pointer leading-tight"
-                            title={article.title}
-                          >
-                            {article.title}
-                          </div>
-                          <div className="text-[11px] text-muted-foreground font-mono truncate max-w-xs">
-                            /{article.slug}
+                    {visibleColumns.title && (
+                      <TableCell
+                        className={`py-3.5 px-4 ${
+                          lastVisibleCol === "title" ? "pr-6" : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {article.featuredImage && (
+                            <div className="size-9 rounded border overflow-hidden shrink-0 hidden sm:block bg-muted">
+                              <img
+                                src={article.featuredImage}
+                                alt=""
+                                className="size-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0 space-y-0.5">
+                            <div
+                              onClick={() => onEdit(article)}
+                              className="font-semibold text-xs truncate max-w-xs hover:text-primary cursor-pointer leading-tight"
+                              title={article.title}
+                            >
+                              {article.title}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground font-mono truncate max-w-xs">
+                              /{article.slug}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
+                    )}
 
                     {/* Category & Tags Column */}
-                    <TableCell className="py-3.5 px-6">
-                      <div className="flex flex-col gap-1 items-start">
-                        <Badge variant="outline" className="text-[11px] font-medium rounded-xs px-2 py-0.5">
-                          {article.category}
-                        </Badge>
-                        {article.tags && article.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {article.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[10px] text-muted-foreground font-medium bg-muted/60 px-1.5 py-0.5 rounded-xs"
-                              >
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
+                    {visibleColumns.category && (
+                      <TableCell
+                        className={`py-3.5 px-4 ${
+                          lastVisibleCol === "category" ? "pr-6" : ""
+                        }`}
+                      >
+                        <div className="flex flex-col gap-1 items-start">
+                          <Badge
+                            variant="outline"
+                            className="text-[11px] font-medium rounded-xs px-2 py-0.5"
+                          >
+                            {article.category}
+                          </Badge>
+                          {article.tags && article.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {article.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-[10px] text-muted-foreground font-medium bg-muted/60 px-1.5 py-0.5 rounded-xs"
+                                >
+                                  #{tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
 
                     {/* INLINE STATUS SELECTOR DROPDOWN */}
-                    <TableCell className="py-3.5 px-6">
-                      <Select
-                        value={article.status}
-                        onValueChange={(val) =>
-                          onStatusChange(article.id, val as ContentItem["status"])
-                        }
+                    {visibleColumns.status && (
+                      <TableCell
+                        className={`py-3.5 px-4 ${
+                          lastVisibleCol === "status" ? "pr-6" : ""
+                        }`}
                       >
-                        <SelectTrigger
-                          className={`h-7 text-xs font-medium rounded-xs border w-28 px-2 py-0 ${statusBadgeStyles[article.status].className}`}
+                        <Select
+                          value={article.status}
+                          onValueChange={(val) =>
+                            onStatusChange(
+                              article.id,
+                              val as ContentItem["status"]
+                            )
+                          }
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent align="start">
-                          <SelectItem value="draft" className="text-xs">Draft</SelectItem>
-                          <SelectItem value="scheduled" className="text-xs">Scheduled</SelectItem>
-                          <SelectItem value="published" className="text-xs">Published</SelectItem>
-                          <SelectItem value="archived" className="text-xs">Archived</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+                          <SelectTrigger
+                            className={`h-7 text-xs font-medium rounded-xs border w-28 px-2 py-0 ${
+                              statusBadgeStyles[article.status].className
+                            }`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent align="start">
+                            <SelectItem value="draft" className="text-xs">
+                              Draft
+                            </SelectItem>
+                            <SelectItem value="scheduled" className="text-xs">
+                              Scheduled
+                            </SelectItem>
+                            <SelectItem value="published" className="text-xs">
+                              Published
+                            </SelectItem>
+                            <SelectItem value="archived" className="text-xs">
+                              Archived
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                    )}
 
                     {/* Target Adapters Badges */}
-                    <TableCell className="py-3.5 px-6">
-                      <div className="flex flex-wrap gap-1">
-                        {article.adapters.map((adapter) => (
-                          <Badge
-                            key={adapter}
-                            variant="secondary"
-                            className="text-[10px] font-normal rounded-xs px-1.5 py-0.5"
-                          >
-                            <Globe className="mr-1 size-2.5 text-muted-foreground" />
-                            {adapter}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
+                    {visibleColumns.adapters && (
+                      <TableCell
+                        className={`py-3.5 px-4 ${
+                          lastVisibleCol === "adapters" ? "pr-6" : ""
+                        }`}
+                      >
+                        <div className="flex flex-wrap gap-1">
+                          {article.adapters.map((adapter) => (
+                            <Badge
+                              key={adapter}
+                              variant="secondary"
+                              className="text-[10px] font-normal rounded-xs px-1.5 py-0.5"
+                            >
+                              <Globe className="mr-1 size-2.5 text-muted-foreground" />
+                              {adapter}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                    )}
 
                     {/* SEO Score */}
-                    <TableCell className="text-center py-3.5 px-6">
-                      <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
-                        <Search className="size-3" />
-                        {article.seoScore ?? 94}
-                      </span>
-                    </TableCell>
+                    {visibleColumns.seo && (
+                      <TableCell
+                        className={`text-center py-3.5 px-4 ${
+                          lastVisibleCol === "seo" ? "pr-6" : ""
+                        }`}
+                      >
+                        <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-emerald-600 dark:text-emerald-400">
+                          <Search className="size-3" />
+                          {article.seoScore ?? 94}
+                        </span>
+                      </TableCell>
+                    )}
 
                     {/* GEO Score */}
-                    <TableCell className="text-center py-3.5 px-6">
-                      <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-purple-600 dark:text-purple-400">
-                        <Sparkles className="size-3" />
-                        {article.geoScore ?? 90}
-                      </span>
-                    </TableCell>
+                    {visibleColumns.geo && (
+                      <TableCell
+                        className={`text-center py-3.5 px-4 ${
+                          lastVisibleCol === "geo" ? "pr-6" : ""
+                        }`}
+                      >
+                        <span className="inline-flex items-center gap-0.5 font-semibold text-[11px] text-purple-600 dark:text-purple-400">
+                          <Sparkles className="size-3" />
+                          {article.geoScore ?? 90}
+                        </span>
+                      </TableCell>
+                    )}
 
                     {/* Date */}
-                    <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap py-3.5 px-6">
-                      {article.publishDate || article.updatedAt || article.createdAt || "N/A"}
-                    </TableCell>
+                    {visibleColumns.date && (
+                      <TableCell
+                        className={`text-[11px] text-muted-foreground whitespace-nowrap py-3.5 px-4 ${
+                          lastVisibleCol === "date" ? "pr-6" : ""
+                        }`}
+                      >
+                        {article.publishDate ||
+                          article.updatedAt ||
+                          article.createdAt ||
+                          "N/A"}
+                      </TableCell>
+                    )}
 
                     {/* Actions Menu + Live Preview Button */}
-                    <TableCell className="text-right py-3.5 pr-6">
-                      <div className="flex items-center justify-end gap-1">
-                        {/* Live Preview Drawer Trigger */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 rounded-xs text-muted-foreground hover:text-foreground"
-                          title="Quick Live Preview"
-                          onClick={() => setPreviewArticle(article)}
-                        >
-                          <Eye className="size-3.5" />
-                        </Button>
+                    {visibleColumns.actions && (
+                      <TableCell className="text-right py-3.5 pr-6 pl-3">
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Live Preview Drawer Trigger */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 rounded-xs text-muted-foreground hover:text-foreground"
+                            title="Quick Live Preview"
+                            onClick={() => setPreviewArticle(article)}
+                          >
+                            <Eye className="size-3.5" />
+                          </Button>
 
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-7 rounded-xs">
-                              <MoreHorizontal className="size-3.5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onEdit(article)}>
-                              <Edit className="mr-2 size-3.5 text-blue-500" />
-                              Edit Article
-                            </DropdownMenuItem>
-                            {article.status !== "published" && (
-                              <DropdownMenuItem onClick={() => onPublish(article.id)}>
-                                <Send className="mr-2 size-3.5 text-emerald-500" />
-                                Quick Publish
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-7 rounded-xs"
+                              >
+                                <MoreHorizontal className="size-3.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => onEdit(article)}>
+                                <Edit className="mr-2 size-3.5 text-blue-500" />
+                                Edit Article
                               </DropdownMenuItem>
-                            )}
-                            {article.status !== "archived" && (
-                              <DropdownMenuItem onClick={() => onArchive(article.id)}>
-                                <Archive className="mr-2 size-3.5 text-amber-500" />
-                                Archive Article
+                              {article.status !== "published" && (
+                                <DropdownMenuItem
+                                  onClick={() => onPublish(article.id)}
+                                >
+                                  <Send className="mr-2 size-3.5 text-emerald-500" />
+                                  Quick Publish
+                                </DropdownMenuItem>
+                              )}
+                              {article.status !== "archived" && (
+                                <DropdownMenuItem
+                                  onClick={() => onArchive(article.id)}
+                                >
+                                  <Archive className="mr-2 size-3.5 text-amber-500" />
+                                  Archive Article
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => onDelete(article.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="mr-2 size-3.5" />
+                                Delete Article
                               </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => onDelete(article.id)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="mr-2 size-3.5" />
-                              Delete Article
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 );
               })
@@ -486,8 +675,59 @@ export function ContentTable({
         </Table>
       </div>
 
-      {/* STICKY FOOTER PAGINATION BAR (FLUSH EDGE-TO-EDGE) */}
-      <div className="sticky bottom-0 bg-card border-t z-10 px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+      {/* FLOATING BULK ACTIONS BAR (Absolute/Fixed Bottom Floating Pill) */}
+      {selectedIds.length > 0 && (
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-3 rounded-full border border-primary/30 bg-card/95 backdrop-blur-md px-5 py-2.5 shadow-2xl ring-1 ring-black/5 dark:ring-white/10 animate-in fade-in-0 slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center gap-2 text-xs font-semibold text-primary shrink-0">
+            <CheckCircle2 className="size-4" />
+            <span>{selectedIds.length} article(s) selected</span>
+          </div>
+
+          <div className="h-4 w-px bg-border" />
+
+          <div className="flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExecuteBulkPublish}
+              className="h-7 text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 gap-1 rounded-full px-3"
+            >
+              <Send className="size-3" />
+              Publish
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleExecuteBulkArchive}
+              className="h-7 text-xs border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 gap-1 rounded-full px-3"
+            >
+              <Archive className="size-3" />
+              Archive
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleExecuteBulkDelete}
+              className="h-7 text-xs gap-1 rounded-full px-3"
+            >
+              <Trash2 className="size-3" />
+              Delete
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setSelectedIds([])}
+              className="h-7 size-7 p-0 text-muted-foreground hover:text-foreground rounded-full"
+              title="Clear selection"
+            >
+              <X className="size-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* STICKY FOOTER PAGINATION BAR (ABSOLUTE STICKY BOTTOM) */}
+      <div className="shrink-0 sticky bottom-0 z-20 bg-card/95 backdrop-blur-md border-t px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>Rows per page:</span>
           <Select
@@ -510,7 +750,8 @@ export function ContentTable({
 
           <span className="hidden sm:inline-block ml-2 border-l pl-3">
             Showing {totalItems === 0 ? 0 : startIndex + 1}–
-            {Math.min(startIndex + pageSize, totalItems)} of {totalItems} articles
+            {Math.min(startIndex + pageSize, totalItems)} of {totalItems}{" "}
+            articles
           </span>
         </div>
 
@@ -533,7 +774,9 @@ export function ContentTable({
               size="icon"
               className="size-7 rounded-xs"
               disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
             >
               <ChevronRight className="size-3.5" />
             </Button>
@@ -553,7 +796,9 @@ export function ContentTable({
                 {previewArticle?.category}
               </Badge>
               {previewArticle?.tags?.map((t) => (
-                <span key={t} className="text-muted-foreground">#{t}</span>
+                <span key={t} className="text-muted-foreground">
+                  #{t}
+                </span>
               ))}
             </div>
             <DialogTitle className="text-xl font-bold pt-1">
@@ -579,11 +824,17 @@ export function ContentTable({
               <div className="space-y-2 rounded-md border p-3 bg-muted/20 text-xs">
                 <div className="font-semibold flex items-center justify-between">
                   <span>Target Adapters & SEO Metrics</span>
-                  <span className="text-emerald-600 font-semibold">SEO: {previewArticle.seoScore}/100</span>
+                  <span className="text-emerald-600 font-semibold">
+                    SEO: {previewArticle.seoScore}/100
+                  </span>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {previewArticle.adapters.map((adp) => (
-                    <Badge key={adp} variant="secondary" className="text-[10px] rounded-xs">
+                    <Badge
+                      key={adp}
+                      variant="secondary"
+                      className="text-[10px] rounded-xs"
+                    >
                       {adp}
                     </Badge>
                   ))}
@@ -600,3 +851,4 @@ export function ContentTable({
     </div>
   );
 }
+

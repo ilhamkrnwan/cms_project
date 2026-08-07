@@ -11,40 +11,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const repositories = [
+const links = [
   {
-    label: "Radix UI",
-    href: "https://github.com/arhamkhnz/next-shadcn-admin-dashboard",
+    label: "Wontent API Docs",
+    href: "http://localhost:3000/swagger",
   },
   {
-    label: "Base UI",
-    href: "https://github.com/arhamkhnz/next-shadcn-admin-dashboard-baseui",
-  },
-  {
-    label: "React Aria",
-    href: "https://github.com/arhamkhnz/next-shadcn-admin-dashboard-aria",
-  },
-  {
-    label: "TanStack Start",
-    href: "https://github.com/arhamkhnz/tanstack-shadcn-admin-dashboard",
+    label: "Wontent SDK Package",
+    href: "#",
   },
 ] as const;
 
 export function GitHubRepositoriesMenu() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button size="icon" aria-label="Open project repositories on GitHub" />}>
+      <DropdownMenuTrigger render={<Button size="icon" aria-label="Open Wontent Links" />}>
         <SimpleIcon icon={siGithub} className="fill-primary-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Project versions</DropdownMenuLabel>
-          {repositories.map((repository) => (
+          <DropdownMenuLabel>Developer Resources</DropdownMenuLabel>
+          {links.map((item) => (
             <DropdownMenuItem
-              key={repository.href}
-              render={<a href={repository.href} target="_blank" rel="noreferrer" />}
+              key={item.label}
+              render={<a href={item.href} target="_blank" rel="noreferrer" />}
             >
-              {repository.label}
+              {item.label}
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>

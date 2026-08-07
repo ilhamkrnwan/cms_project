@@ -3,12 +3,12 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Studio Admin",
+  name: "Wontent Content Hub",
   version: packageJson.version,
-  copyright: `© ${currentYear}, Studio Admin.`,
+  copyright: `© ${currentYear}, Wontent Inc.`,
   meta: {
-    title: "Studio Admin - Modern TanStack Start Dashboard Starter Template",
+    title: "Wontent Content Hub - Write Once. Optimize with AI. Publish Everywhere.",
     description:
-      "Studio Admin is a modern, open-source dashboard starter template built with TanStack Start, Tailwind CSS v4, and shadcn/ui. Perfect for SaaS apps, admin panels, and internal tools—fully customizable and production-ready.",
+      "Wontent Content Hub is a modern Headless Content Hub for creating, optimizing with AI (SEO & GEO), and publishing content to multiple CMSs and social channels.",
   },
 };

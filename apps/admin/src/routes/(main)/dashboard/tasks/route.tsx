@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileText, Plus } from "lucide-react";
+import { FileText, Loader2, Plus } from "lucide-react";
+import { toast } from "@/components/ui/toast";
 
 import { Button } from "@/components/ui/button";
+import { contentApi } from "@/lib/api-client";
 import { ContentEditor, type ContentItem } from "./-components/content-editor";
 import { ContentTable } from "./-components/content-table";
 
@@ -112,11 +114,13 @@ function Page() {
   const [articles, setArticles] = useState<ContentItem[]>(INITIAL_ARTICLES);
   const [viewMode, setViewMode] = useState<"list" | "editor">("list");
   const [editingArticle, setEditingArticle] = useState<ContentItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch articles from API server if running
+  // Fetch articles from API
   useEffect(() => {
-    fetch("http://localhost:3000/contents")
-      .then((res) => res.json())
+    setIsLoading(true);
+    contentApi
+      .list()
       .then((res) => {
         if (res.success && Array.isArray(res.data) && res.data.length > 0) {
           const mapped: ContentItem[] = res.data.map((item: any) => ({
@@ -136,7 +140,10 @@ function Page() {
           setArticles(mapped);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback to initial articles if API is unreachable
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const handleOpenCreate = () => {
@@ -149,7 +156,7 @@ function Page() {
     setViewMode("editor");
   };
 
-  const handleSaveArticle = (formData: Partial<ContentItem>) => {
+  const handleSaveArticle = async (formData: Partial<ContentItem>) => {
     if (editingArticle) {
       setArticles((prev) =>
         prev.map((item) =>
@@ -157,11 +164,19 @@ function Page() {
         )
       );
 
-      fetch(`http://localhost:3000/contents/${editingArticle.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      }).catch(() => {});
+      const res = await contentApi.update(editingArticle.id, {
+        title: formData.title,
+        content: formData.body,
+        slug: formData.slug,
+        featuredImage: formData.featuredImage,
+        status: formData.status,
+        seoMetadata: formData.seoMetadata,
+      });
+      if (res.success) {
+        toast.add({ type: "success", title: "Content updated successfully" });
+      } else {
+        toast.add({ type: "error", title: res.message || "Failed to update content" });
+      }
     } else {
       const newItem: ContentItem = {
         id: `cnt_${Date.now()}`,
@@ -180,23 +195,34 @@ function Page() {
       };
       setArticles((prev) => [newItem, ...prev]);
 
-      fetch("http://localhost:3000/contents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem),
-      }).catch(() => {});
+      const res = await contentApi.create({
+        title: newItem.title,
+        content: newItem.body,
+        slug: newItem.slug,
+        featuredImage: newItem.featuredImage,
+        status: newItem.status,
+        seoMetadata: newItem.seoMetadata,
+      });
+      if (res.success) {
+        toast.add({ type: "success", title: "Content created successfully" });
+      } else {
+        toast.add({ type: "error", title: res.message || "Failed to create content" });
+      }
     }
     setViewMode("list");
   };
 
-  const handleDeleteArticle = (id: string) => {
+  const handleDeleteArticle = async (id: string) => {
     setArticles((prev) => prev.filter((item) => item.id !== id));
-    fetch(`http://localhost:3000/contents/${id}`, {
-      method: "DELETE",
-    }).catch(() => {});
+    const res = await contentApi.delete(id);
+    if (res.success) {
+      toast.add({ type: "success", title: "Content deleted successfully" });
+    } else {
+      toast.add({ type: "error", title: res.message || "Failed to delete content" });
+    }
   };
 
-  const handlePublishArticle = (id: string) => {
+  const handlePublishArticle = async (id: string) => {
     setArticles((prev) =>
       prev.map((item) =>
         item.id === id
@@ -208,23 +234,29 @@ function Page() {
           : item
       )
     );
-    fetch(`http://localhost:3000/contents/${id}/publish`, {
-      method: "POST",
-    }).catch(() => {});
+    const res = await contentApi.publish(id);
+    if (res.success) {
+      toast.add({ type: "success", title: "Content published successfully" });
+    } else {
+      toast.add({ type: "error", title: res.message || "Failed to publish content" });
+    }
   };
 
-  const handleArchiveArticle = (id: string) => {
+  const handleArchiveArticle = async (id: string) => {
     setArticles((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, status: "archived" } : item
       )
     );
-    fetch(`http://localhost:3000/contents/${id}/archive`, {
-      method: "POST",
-    }).catch(() => {});
+    const res = await contentApi.archive(id);
+    if (res.success) {
+      toast.add({ type: "success", title: "Content archived successfully" });
+    } else {
+      toast.add({ type: "error", title: res.message || "Failed to archive content" });
+    }
   };
 
-  const handleStatusChange = (id: string, newStatus: ContentItem["status"]) => {
+  const handleStatusChange = async (id: string, newStatus: ContentItem["status"]) => {
     setArticles((prev) =>
       prev.map((item) =>
         item.id === id
@@ -236,11 +268,7 @@ function Page() {
           : item
       )
     );
-    fetch(`http://localhost:3000/contents/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    }).catch(() => {});
+    await contentApi.update(id, { status: newStatus });
   };
 
   if (viewMode === "editor") {
@@ -261,8 +289,8 @@ function Page() {
           : item
       )
     );
-    ids.forEach((id) => {
-      fetch(`http://localhost:3000/contents/${id}/publish`, { method: "POST" }).catch(() => {});
+    Promise.all(ids.map((id) => contentApi.publish(id))).then(() => {
+      toast.add({ type: "success", title: `${ids.length} articles published` });
     });
   };
 
@@ -270,15 +298,15 @@ function Page() {
     setArticles((prev) =>
       prev.map((item) => (ids.includes(item.id) ? { ...item, status: "archived" } : item))
     );
-    ids.forEach((id) => {
-      fetch(`http://localhost:3000/contents/${id}/archive`, { method: "POST" }).catch(() => {});
+    Promise.all(ids.map((id) => contentApi.archive(id))).then(() => {
+      toast.add({ type: "success", title: `${ids.length} articles archived` });
     });
   };
 
   const handleBulkDelete = (ids: string[]) => {
     setArticles((prev) => prev.filter((item) => !ids.includes(item.id)));
-    ids.forEach((id) => {
-      fetch(`http://localhost:3000/contents/${id}`, { method: "DELETE" }).catch(() => {});
+    Promise.all(ids.map((id) => contentApi.delete(id))).then(() => {
+      toast.add({ type: "success", title: `${ids.length} articles deleted` });
     });
   };
 
@@ -293,9 +321,9 @@ function Page() {
   }
 
   return (
-    <div data-content-padding="false" className="-m-4 md:-m-6 flex flex-col min-h-[calc(100vh-3rem)] bg-background font-sans">
+    <div data-content-padding="false" className="flex flex-col h-[calc(100vh-3rem)] overflow-hidden bg-background font-sans">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b px-6 pt-5 pb-4 bg-card">
+      <div className="shrink-0 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b px-6 py-4 bg-card">
         <div>
           <div className="flex items-center gap-2">
             <FileText className="size-6 text-primary" />

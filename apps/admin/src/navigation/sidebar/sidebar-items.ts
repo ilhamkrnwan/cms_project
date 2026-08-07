@@ -88,13 +88,13 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "categories",
         title: "Categories & Tags",
-        url: "/dashboard/kanban",
+        url: "/dashboard/categories",
         icon: FolderTree,
       },
       {
         id: "media",
         title: "Media Library",
-        url: "/dashboard/mail",
+        url: "/dashboard/media",
         icon: ImageIcon,
       },
     ],
@@ -106,13 +106,13 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "adapters",
         title: "Platform Adapters",
-        url: "/dashboard/infrastructure",
+        url: "/dashboard/adapters",
         icon: Globe,
       },
       {
         id: "social",
         title: "Social Channels",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/social",
         icon: Share2,
       },
       {
@@ -130,13 +130,13 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "seo",
         title: "SEO Engine",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/seo",
         icon: Search,
       },
       {
         id: "geo",
         title: "GEO Engine",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/geo",
         icon: Sparkles,
         badge: "new",
       },
@@ -161,7 +161,7 @@ export const sidebarItems: NavGroup[] = [
       {
         id: "settings",
         title: "Settings",
-        url: "/dashboard/coming-soon",
+        url: "/dashboard/settings",
         icon: Settings,
       },
     ],

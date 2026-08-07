@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FilePlus, Globe, Search, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ export const Route = createFileRoute("/(main)/dashboard/default")({
 });
 
 function Page() {
+  const navigate = useNavigate();
+
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
       {/* Header Banner & Quick Actions */}
@@ -25,19 +27,19 @@ function Page() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Button size="sm">
+          <Button size="sm" onClick={() => navigate({ to: "/dashboard/tasks" })}>
             <FilePlus className="mr-1.5 size-4" />
             Create Article
           </Button>
-          <Button variant="outline" size="sm">
-            <Sparkles className="mr-1.5 size-4 text-purple-500" />
-            AI Writer
-          </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate({ to: "/dashboard/seo" })}>
             <Search className="mr-1.5 size-4 text-amber-500" />
             SEO Audit
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate({ to: "/dashboard/geo" })}>
+            <Sparkles className="mr-1.5 size-4 text-purple-500" />
+            GEO Engine
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => navigate({ to: "/dashboard/adapters" })}>
             <Globe className="mr-1.5 size-4 text-blue-500" />
             Adapters
           </Button>

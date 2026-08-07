@@ -1,328 +1,484 @@
-# TODO.md
+# TODO — Wontent Content Hub
 
-> Roadmap pengembangan **Wontent Content Hub**
->
-> Build small. Ship fast. Iterate continuously.
+> **Status Pengembangan Aktual berdasarkan audit kode**  
+> Last Updated: 2026-08-07
+
+Legend:
+- `[x]` — Selesai & functional
+- `[~]` — Stub/Mock (ada kode tapi belum real implementation)
+- `[/]` — In Progress / Partial
+- `[ ]` — Belum dimulai
 
 ---
 
-# Phase 0 — Project Foundation
+## Phase 0 — Project Foundation ✅
 
-## Repository
-
-- [x] Setup Monorepo
-- [x] Configure Bun Workspace
+### Repository
+- [x] Setup Monorepo (Bun Workspaces)
 - [x] Configure TypeScript
-- [x] Configure ESLint
-- [x] Configure Prettier
-- [x] Configure Husky
-- [x] Configure Commitlint
-- [x] Configure Environment Variables
+- [x] Configure Biome (Linting/Formatting)
+- [x] Configure Husky & Commitlint
+- [x] Configure Environment Variables (.env)
+- [x] Configure Docker Compose (PostgreSQL, MinIO, Mailpit)
+
+### Apps Structure
+- [x] Create Admin App (React 19, Vite, TanStack Router, Shadcn UI)
+- [x] Create API App (ElysiaJS, Bun, Drizzle ORM)
+- [x] Create Compro App (Astro 5)
+- [x] Create Web App (Astro 5)
+- [x] Create `@wontent/types` package
+- [x] Create `@wontent/sdk` package
 
 ---
 
-## Apps
+## Phase 1 — Authentication & User Management
 
-- [x] Create Admin App (TanStack Shadcn)
-- [x] Create API App (Elysia)
-- [x] Shared Types Package
-- [x] Shared SDK Package
-- [x] Shared UI Package
+### Authentication (Better Auth)
+- [x] Better Auth setup with Drizzle adapter
+- [x] Email/Password login endpoint
+- [x] Register endpoint
+- [x] Session management (DB-backed)
+- [~] Forgot Password (endpoint ada, flow email belum)
+- [~] Email Verification (endpoint ada, SMTP belum terintegrasi)
 
----
+### Admin Auth UI
+- [x] Login page (v1 & v2 variants)
+- [x] Register page
+- [/] Auth guard / protected routes — Partial integration
+- [ ] Forgot password flow UI
+- [ ] Email verification UI
 
-## Infrastructure
-
-- [x] Docker Compose
-- [x] PostgreSQL
-- [x] MinIO
-- [x] Mailpit
-- [x] Redis (optional)
-- [x] Development Scripts
-
----
-
-# Phase 1 — Core Platform
-
-## Authentication
-
-- [x] Better Auth
-- [x] Login
-- [x] Register
-- [x] Forgot Password
-- [x] Email Verification
-- [x] Session Management
+### User Management
+- [~] Users list API (mock data, bukan dari DB)
+- [~] Roles list API (mock data)
+- [~] Permissions list API (mock data)
+- [~] Organizations API (mock data)
+- [ ] DB schema untuk `role`, `permission`, `user_role`
+- [ ] DB schema untuk `organization`, `organization_member`
+- [ ] RBAC middleware di API
+- [ ] Users management UI (connected to API)
+- [ ] Roles & Permissions management UI (connected to API)
+- [ ] Organization/Workspace management UI
 
 ---
 
-## User Management
+## Phase 2 — Dashboard Core UI
 
-- [x] Users
-- [x] Roles
-- [x] Permissions
-- [x] Organizations
-- [x] Workspace
+### Layout & Navigation
+- [x] Sidebar navigation with groups
+- [x] Header with search, theme, layout controls
+- [x] Theme switcher (light/dark)
+- [x] Account switcher component
+- [x] Command Palette / Search Dialog
+- [x] Layout controls (sidebar variant, collapsible)
+- [x] Responsive design
 
----
+### Dashboard Overview Page
+- [x] MetricCards component (Total Contents, Adapters, SEO Score, GEO Score)
+- [x] PerformanceOverview chart
+- [x] RecentContentsTable
+- [ ] **Connect MetricCards ke real API data**
+- [ ] **Connect RecentContentsTable ke API `/contents`**
+- [ ] **Connect PerformanceOverview ke real analytics**
+- [ ] Quick action buttons functional (Create Article, AI Writer, etc.)
 
-## Dashboard
-
-- [x] Dashboard Layout
-- [x] Sidebar
-- [x] Navigation
-- [x] Command Palette
-- [x] Theme Switcher
-
----
-
-# Phase 2 — Content Engine
-
-## Content
-
-- [x] Create Content
-- [x] Edit Content
-- [x] Delete Content
-- [x] Draft
-- [x] Publish
-- [x] Schedule
-- [x] Archive
-
----
-
-## Categories
-
-- [x] Categories
-- [x] Tags
+### Cleanup Template Pages
+- [ ] Hapus/repurpose route `/dashboard/ecommerce`
+- [ ] Hapus route `/dashboard/finance`
+- [ ] Hapus route `/dashboard/crm`
+- [ ] Hapus route `/dashboard/invoice`
+- [ ] Hapus route `/dashboard/logistics`
+- [ ] Hapus route `/dashboard/academy`
+- [ ] Hapus route `/dashboard/productivity`
+- [ ] Repurpose `/dashboard/kanban` → Content Workflow Board
+- [ ] Repurpose `/dashboard/infrastructure` → System Health Monitor
 
 ---
 
-## Slug
+## Phase 3 — Content Management (🔴 PRIORITY)
 
-- [x] Auto Slug
-- [x] Duplicate Detection
+### API (Mostly Done)
+- [x] Content CRUD endpoints (DB-backed)
+- [x] Auto slug generation
+- [x] Duplicate slug detection
+- [x] Publish/Archive endpoints
+- [~] Revisions endpoint (mock data, bukan real version history)
+- [ ] DB schema `content_revision` untuk real version tracking
+- [ ] Content filtering/pagination yang proper
+- [ ] Content search full-text
+- [ ] Workspace-scoped content queries
 
----
+### Admin UI (🔴 LARGELY MISSING)
+- [/] Content list page (ada, tapi pakai template Tasks, belum fetch API)
+- [ ] **Content list page connected ke API `/contents`**
+- [ ] **Content Create page dengan Rich Text Editor**
+- [ ] **Content Edit page dengan Rich Text Editor**
+- [ ] **Content delete confirmation dialog**
+- [ ] **Content status management (Draft → Publish → Archive)**
+- [ ] **Content preview**
+- [ ] **Content scheduling UI**
+- [ ] **Revision history UI**
+- [ ] **Inline SEO/GEO score panel saat editing**
+- [ ] Rich Text Editor integration (TipTap/Plate/etc.)
+- [ ] Featured image picker (from Media Library)
+- [ ] Category & Tag selector in content editor
+- [ ] Bulk actions (delete, publish, archive multiple)
 
-## Revisions
-
-- [x] Version History
-- [x] Restore Version
-
----
-
-# Phase 3 — Media Library
-
-- [x] Upload Image
-- [x] Upload Video
-- [x] Folder Management
-- [x] Search Media
-- [x] Replace Media
-- [x] Image Compression
-- [x] WebP Conversion
-- [x] Image Metadata
-
----
-
-# Phase 4 — SEO Engine
-
-- [x] SEO Title
-- [x] Meta Description
-- [x] Canonical URL
-- [x] Robots
-- [x] Open Graph
-- [x] Twitter Card
-- [x] Sitemap Generator
-- [x] Robots.txt Generator
-
----
-
-## SEO Analyzer
-
-- [x] SEO Score
-- [x] Heading Checker
-- [x] Keyword Density
-- [x] Internal Link Checker
-- [x] External Link Checker
-- [x] Missing Alt Text
-- [x] Meta Preview
+### API Client (`api-client.ts`)
+- [x] `getContents()`, `getContent()`, `createContent()` basic methods
+- [ ] `updateContent()`, `deleteContent()`
+- [ ] `publishContent()`, `archiveContent()`
+- [ ] `getRevisions()`, `restoreRevision()`
+- [ ] Error handling & retry logic
+- [ ] Authentication headers integration
 
 ---
 
-# Phase 5 — GEO Engine
+## Phase 4 — Categories & Tags
 
-- [x] GEO Score
-- [x] AI Readability
-- [x] Entity Detection
-- [x] FAQ Suggestions
-- [x] Citation Suggestions
-- [x] Structured Content Analysis
-- [x] LLM Readiness
+### API
+- [x] Categories CRUD (DB-backed)
+- [x] Tags CRUD (DB-backed)
 
----
-
-# Phase 6 — AI Assistant
-
-- [x] AI Title
-- [x] AI Summary
-- [x] AI Rewrite
-- [x] AI Grammar
-- [x] AI Translation
-- [x] AI FAQ
-- [x] AI Meta Description
-- [x] AI Hashtag Generator
-- [x] AI CTA Generator
+### Admin UI
+- [x] Categories & Tags management page
+- [ ] Connect category/tag ke content editor
+- [ ] Nested categories support
 
 ---
 
-# Phase 7 — Adapter System
+## Phase 5 — Media Library
 
-## Adapter Framework
+### API
+- [x] Media CRUD endpoints (DB-backed)
+- [x] Upload metadata endpoint
+- [~] Folder management (mock data)
+- [~] Image compression/WebP (mock response, no actual processing)
+- [ ] **Actual file upload ke MinIO/S3**
+- [ ] **Actual image processing (Sharp: resize, compress, WebP convert)**
+- [ ] Real folder management (DB-backed)
+- [ ] Media replace functionality
+- [ ] Presigned URL generation for direct upload
+- [ ] Image metadata extraction
 
-- [x] Adapter Interface
-- [x] Adapter Registry
-- [x] Adapter Configuration
-- [x] Adapter Settings
-
----
-
-## WordPress Adapter
-
-- [x] Connect Site
-- [x] OAuth / API Key
-- [x] Publish Post
-- [x] Update Post
-- [x] Delete Post
-- [x] Sync Categories
-- [x] Sync Tags
-- [x] Upload Media
-
----
-
-## Astro Adapter
-
-- [x] API Integration
-- [x] Content Sync
+### Admin UI
+- [x] Media library page
+- [ ] **Drag-and-drop file upload**
+- [ ] **Image preview & lightbox**
+- [ ] **Folder navigation**
+- [ ] **Media picker modal (for content editor)**
+- [ ] Bulk upload/delete
+- [ ] Image editing (crop, resize)
 
 ---
 
-## Next.js Adapter
+## Phase 6 — SEO Engine
 
-- [x] API Integration
-- [x] Content Sync
+### API
+- [x] SEO analysis endpoint (functional scoring)
+- [x] Heading checker, keyword density, link checks
+- [x] Meta preview data
+- [~] Sitemap generator (mock)
+- [~] Robots.txt generator (mock)
+- [ ] Real sitemap XML generation
+- [ ] Robots.txt file generation
+- [ ] Canonical URL management
 
----
-
-# Phase 8 — Social Publishing
-
-## Meta
-
-- [x] Facebook Login
-- [x] Connect Facebook Page
-- [x] Connect Instagram Business
-- [x] Publish Facebook
-- [x] Publish Instagram
-
----
-
-## LinkedIn
-
-- [x] OAuth
-- [x] Publish Post
+### Admin UI
+- [x] SEO engine page with scoring UI
+- [ ] SEO panel terintegrasi di content editor
+- [ ] SERP preview component
+- [ ] Keyword suggestions
+- [ ] Competitor analysis
 
 ---
 
-## Threads
+## Phase 7 — GEO Engine
 
-- [x] Publish Thread
+### API
+- [x] GEO analysis endpoint (basic scoring)
+- [x] Readability analysis
+- [~] Entity detection (mock/basic)
+- [~] FAQ suggestions (mock)
+- [~] Citation suggestions (mock)
+- [ ] Real NLP-based entity extraction
+- [ ] AI-powered FAQ generation
+- [ ] Structured data (JSON-LD) generator
 
----
-
-## Telegram
-
-- [x] Bot Integration
-
----
-
-## WhatsApp Channel
-
-- [x] Publish Update
-
----
-
-# Phase 9 — Scheduling
-
-- [x] Schedule Publish
-- [x] Content Calendar
-- [x] Recurring Publish
-- [x] Queue
-- [x] Retry Failed Publish
+### Admin UI
+- [x] GEO engine page
+- [ ] GEO panel terintegrasi di content editor
+- [ ] Entity highlighting in editor
+- [ ] FAQ editor inline
 
 ---
 
-# Phase 10 — Analytics
+## Phase 8 — AI Assistant
 
-- [x] Dashboard Overview
-- [x] Published Content
-- [x] Failed Publish
-- [x] SEO Statistics
-- [x] GEO Statistics
-- [x] Social Engagement
-- [x] Adapter Usage
+### API
+- [~] AI generate endpoint (placeholder logic — string manipulation, bukan real LLM)
+- [ ] **Integrasi LLM (OpenAI/Anthropic/Gemini)**
+- [ ] AI title generation (real)
+- [ ] AI summary generation (real)
+- [ ] AI rewrite (real)
+- [ ] AI grammar check (real)
+- [ ] AI translation (real)
+- [ ] AI FAQ generation (real)
+- [ ] AI meta description (real)
+- [ ] AI hashtag generation (real)
+- [ ] AI CTA generation (real)
+- [ ] Rate limiting per user
+- [ ] Token usage tracking
 
----
-
-# Phase 11 — Notifications
-
-- [x] Email
-- [x] In-App Notification
-- [x] Discord Webhook
-- [x] Slack Webhook
-
----
-
-# Phase 12 — Settings
-
-- [x] General Settings
-- [x] SEO Defaults
-- [x] AI Settings
-- [x] Storage Settings
-- [x] Email Settings
-- [x] API Keys
+### Admin UI
+- [ ] **AI Assistant panel/sidebar dalam content editor**
+- [ ] AI generation dialog/modal
+- [ ] AI suggestions inline
+- [ ] AI history/undo
 
 ---
 
-# Phase 13 — Plugin SDK
+## Phase 9 — Adapter System
 
-- [x] Plugin Loader
-- [x] Plugin Manifest
-- [x] Plugin API
-- [ ] Plugin Marketplace
+### API Framework
+- [x] BaseAdapter abstract class
+- [x] Adapter registry (WordPress, Astro, Next.js)
+- [x] Publish endpoint
+- [~] WordPress Adapter (mock publish, tidak call WP REST API)
+- [~] Astro Adapter (mock)
+- [~] Next.js Adapter (mock)
+- [ ] **Real WordPress REST API integration**
+- [ ] **Real webhook/API integration untuk Astro**
+- [ ] **Real webhook/API integration untuk Next.js**
+- [ ] DB schema `adapter_connection` untuk menyimpan credentials
+- [ ] Adapter health check
+- [ ] Adapter error handling & retry
+- [ ] Publish log/history
+
+### Admin UI
+- [x] Adapters list page
+- [ ] **Adapter setup wizard (connect WordPress site)**
+- [ ] **Adapter connection management (edit/delete/test)**
+- [ ] Publish target selector dalam content editor
+- [ ] Publish history per adapter
+
+---
+
+## Phase 10 — Social Publishing
+
+### API
+- [~] Social accounts list (mock data)
+- [~] Social publish endpoint (mock response)
+- [ ] **Meta Graph API integration (Facebook/Instagram)**
+- [ ] **LinkedIn OAuth & Publishing API**
+- [ ] **Telegram Bot API integration**
+- [ ] DB schema `social_account` untuk OAuth tokens
+- [ ] Social media image format optimization
+- [ ] Hashtag management per platform
+- [ ] Character limit validation per platform
+
+### Admin UI
+- [x] Social channels page
+- [ ] **OAuth connect flow (Facebook, Instagram, LinkedIn)**
+- [ ] **Social publish composer**
+- [ ] **Platform preview (how post will look)**
+- [ ] Social post history
 
 ---
 
-# Phase 14 — Documentation
+## Phase 11 — Content Scheduling
 
-- [x] API Documentation
-- [x] SDK Documentation
-- [x] Adapter Documentation
-- [x] Deployment Guide
-- [x] User Guide
+### API
+- [~] Schedule job CRUD (in-memory array, bukan DB/queue)
+- [~] Retry endpoint (mock)
+- [ ] **DB schema `schedule_job` untuk persistent scheduling**
+- [ ] **Background worker/cron untuk execute scheduled publishes**
+- [ ] Content calendar API
+- [ ] Recurring publish support
+- [ ] Failed job retry mechanism (real)
+
+### Admin UI
+- [/] Calendar component ada
+- [ ] **Content Calendar connected to API**
+- [ ] **Schedule publish flow dari content editor**
+- [ ] **Calendar drag-and-drop rescheduling**
+- [ ] Schedule queue management UI
+
+---
+
+## Phase 12 — Analytics
+
+### API
+- [~] Analytics overview (all hardcoded numbers)
+- [ ] **Real aggregation queries ke DB**
+- [ ] Content performance metrics
+- [ ] Adapter usage statistics
+- [ ] Social engagement tracking
+- [ ] SEO/GEO score trends
+- [ ] Time-series data
+
+### Admin UI
+- [x] Analytics page
+- [ ] **Connect ke real API data**
+- [ ] Chart components dengan real data
+- [ ] Date range filtering
+- [ ] Export functionality
 
 ---
 
-# MVP Checklist
+## Phase 13 — Notifications
 
-Fokus versi pertama:
+### API
+- [~] Notifications list (mock)
+- [~] Webhook endpoint (mock)
+- [ ] DB schema `notification`
+- [ ] Real email notifications (Mailpit/SMTP)
+- [ ] Real Discord webhook integration
+- [ ] Real Slack webhook integration
+- [ ] In-app notification system (WebSocket/SSE)
+- [ ] Notification preferences per user
 
-- [x] Authentication
-- [x] Dashboard
-- [x] Content CRUD
-- [x] Media Library
-- [x] SEO Analyzer
-- [x] WordPress Adapter
-- [x] Facebook Publishing
-- [x] AI Rewrite
-- [x] Scheduler
-- [x] Settings
+### Admin UI
+- [ ] Notification bell/dropdown
+- [ ] Notification center page
+- [ ] Notification settings
 
 ---
+
+## Phase 14 — Settings
+
+### API
+- [~] Settings GET/PUT (in-memory variable, hilang saat restart)
+- [ ] **DB schema `settings` per workspace**
+- [ ] API key generation & management
+- [ ] Storage settings validation
+- [ ] Email settings with test send
+
+### Admin UI
+- [x] Settings page
+- [ ] **Connect ke real API & DB persistence**
+- [ ] API key management UI
+- [ ] Storage test connection
+- [ ] Email test send
+
+---
+
+## Phase 15 — Shared Packages
+
+### `@wontent/types`
+- [x] `ApiResponse`, `Workspace`, `ContentItem`, `AdapterConfig`
+- [ ] `Category`, `Tag`, `Media`, `MediaFolder`
+- [ ] `User`, `Role`, `Permission`, `Organization`
+- [ ] `SEOAnalysis`, `GEOAnalysis`
+- [ ] `AIGenerateRequest`, `AIGenerateResponse`
+- [ ] `ScheduleJob`, `Notification`
+- [ ] `Settings`, `SocialAccount`
+
+### `@wontent/sdk`
+- [x] Basic content & SEO methods (6 methods)
+- [ ] Full Content CRUD (update, delete, publish, archive)
+- [ ] Category & Tag methods
+- [ ] Media methods
+- [ ] Workspace methods
+- [ ] AI methods
+- [ ] GEO methods
+- [ ] Social publishing methods
+- [ ] Scheduling methods
+- [ ] Settings methods
+- [ ] Auth methods
+
+---
+
+## Phase 16 — Quality & DevOps
+
+### Testing
+- [ ] Unit tests (API routes)
+- [ ] Integration tests (API → DB)
+- [ ] Component tests (Admin UI)
+- [ ] E2E tests (Playwright/Cypress)
+
+### Security
+- [ ] CSRF protection
+- [ ] Rate limiting (Elysia plugin)
+- [ ] Input sanitization
+- [ ] Helmet/security headers
+- [ ] SQL injection prevention audit
+- [ ] XSS prevention audit
+
+### DevOps
+- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] Staging environment
+- [ ] Production Dockerfile optimization
+- [ ] Health check endpoints improvement
+- [ ] Structured logging (Pino/Winston)
+- [ ] Error tracking (Sentry)
+- [ ] Performance monitoring
+
+### Documentation
+- [x] README.md
+- [x] PRD.md
+- [x] TODO.md
+- [ ] API documentation (beyond Swagger auto-gen)
+- [ ] SDK usage guide
+- [ ] Deployment guide
+- [ ] Contributing guide (update from template)
+
+---
+
+## 🎯 Dashboard Completion Sprint — Prioritized Tasks
+
+> **Fokus utama:** Membuat dashboard admin fungsional dan terhubung ke API
+
+### Sprint 1: Content Management Core (🔴 HIGHEST PRIORITY)
+1. [ ] Content list page — fetch dari API `/contents`, tampilkan tabel real
+2. [ ] Content create page — form dengan Rich Text Editor
+3. [ ] Content edit page — load content, edit, save
+4. [ ] Content delete — confirmation dialog + API call
+5. [ ] Content status management — draft/publish/archive buttons
+6. [ ] Integrate API client dengan semua content endpoints
+
+### Sprint 2: Dashboard Data Connection
+7. [ ] MetricCards — fetch real counts dari API
+8. [ ] RecentContentsTable — fetch recent contents dari API
+9. [ ] PerformanceOverview — fetch real analytics
+10. [ ] Quick actions — route to create article, etc.
+
+### Sprint 3: Media Library Functional
+11. [ ] Actual file upload ke MinIO (presigned URL / multipart)
+12. [ ] Media preview grid/list connected to API
+13. [ ] Media picker modal for content editor
+14. [ ] Drag and drop upload
+
+### Sprint 4: Integration & Polish
+15. [ ] SEO panel inline di content editor
+16. [ ] Category & Tag selector di content editor
+17. [ ] Template routes cleanup (remove non-CMS pages)
+18. [ ] Auth guard integration (redirect to login if not authenticated)
+19. [ ] Error boundaries & loading states
+20. [ ] Toast notifications for actions
+
+---
+
+## Summary Statistik
+
+| Kategori | Total Fitur | Selesai | Stub/Mock | Partial | Belum Mulai |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Authentication | 11 | 5 | 3 | 2 | 1 |
+| Dashboard UI | 10 | 7 | 0 | 3 | 0 |
+| Content Management | 16 | 4 | 1 | 2 | 9 |
+| Categories & Tags | 4 | 3 | 0 | 0 | 1 |
+| Media Library | 12 | 2 | 2 | 0 | 8 |
+| SEO Engine | 8 | 4 | 2 | 0 | 2 |
+| GEO Engine | 8 | 2 | 3 | 0 | 3 |
+| AI Assistant | 14 | 0 | 1 | 0 | 13 |
+| Adapter System | 12 | 3 | 3 | 0 | 6 |
+| Social Publishing | 10 | 0 | 2 | 0 | 8 |
+| Scheduling | 8 | 0 | 2 | 1 | 5 |
+| Analytics | 7 | 0 | 1 | 0 | 6 |
+| Notifications | 8 | 0 | 2 | 0 | 6 |
+| Settings | 5 | 0 | 1 | 0 | 4 |
+| Packages | 12 | 2 | 0 | 0 | 10 |
+| Quality/DevOps | 16 | 3 | 0 | 0 | 13 |
+| **TOTAL** | **~161** | **~35 (22%)** | **~23 (14%)** | **~8 (5%)** | **~95 (59%)** |
+
+> ⚠️ **Kesimpulan:** Sekitar **22% fitur benar-benar fungsional**, 14% berupa stub/mock, dan **59% belum dimulai sama sekali**. TODO.md sebelumnya yang menandai hampir semua `[x]` **tidak akurat** — banyak yang hanya endpoint dengan response mock atau UI tanpa koneksi ke data real.

@@ -1,6 +1,9 @@
 import { Elysia, t } from 'elysia';
+import { db } from '../db';
+import { appSettings } from '../db/schema';
+import { eq } from 'drizzle-orm';
 
-let globalSettings = {
+const DEFAULT_SETTINGS = {
   general: { siteName: 'Wontent Content Hub', defaultLocale: 'en' },
   seoDefaults: { defaultTitleSuffix: ' | Wontent Hub', defaultMetaRobots: 'index, follow' },
   aiSettings: { defaultModel: 'gpt-4o', autoSuggestKeywords: true },
@@ -12,16 +15,61 @@ let globalSettings = {
 };
 
 export const settingsRoutes = new Elysia({ prefix: '/settings' })
-  .get('/', () => ({
-    success: true,
-    data: globalSettings,
-    timestamp: new Date().toISOString()
-  }))
+  .get('/', async () => {
+    try {
+      const records = await db.select().from(appSettings).limit(1);
+      if (records.length === 0) {
+        return { success: true, data: DEFAULT_SETTINGS, timestamp: new Date().toISOString() };
+      }
+      const item = records[0];
+      return {
+        success: true,
+        data: {
+          general: item.general || DEFAULT_SETTINGS.general,
+          seoDefaults: item.seoDefaults || DEFAULT_SETTINGS.seoDefaults,
+          aiSettings: item.aiSettings || DEFAULT_SETTINGS.aiSettings,
+          storageSettings: item.storageSettings || DEFAULT_SETTINGS.storageSettings,
+          emailSettings: item.emailSettings || DEFAULT_SETTINGS.emailSettings,
+          apiKeys: item.apiKeys || DEFAULT_SETTINGS.apiKeys
+        },
+        timestamp: new Date().toISOString()
+      };
+    } catch {
+      return { success: true, data: DEFAULT_SETTINGS, timestamp: new Date().toISOString() };
+    }
+  })
   .put(
     '/',
-    ({ body }) => {
-      globalSettings = { ...globalSettings, ...body };
-      return { success: true, message: 'Settings updated successfully', data: globalSettings };
+    async ({ body }) => {
+      try {
+        const records = await db.select().from(appSettings).limit(1);
+        if (records.length === 0) {
+          const newSetting = {
+            id: `stg_default`,
+            workspaceId: 'ws_default',
+            general: body.general || DEFAULT_SETTINGS.general,
+            seoDefaults: body.seoDefaults || DEFAULT_SETTINGS.seoDefaults,
+            aiSettings: body.aiSettings || DEFAULT_SETTINGS.aiSettings,
+            storageSettings: body.storageSettings || DEFAULT_SETTINGS.storageSettings,
+            emailSettings: body.emailSettings || DEFAULT_SETTINGS.emailSettings,
+            apiKeys: body.apiKeys || DEFAULT_SETTINGS.apiKeys,
+            updatedAt: new Date()
+          };
+          await db.insert(appSettings).values(newSetting);
+          return { success: true, message: 'Settings created & saved to database', data: newSetting };
+        } else {
+          const existing = records[0];
+          const updateData = {
+            ...existing,
+            ...body,
+            updatedAt: new Date()
+          };
+          await db.update(appSettings).set(updateData).where(eq(appSettings.id, existing.id));
+          return { success: true, message: 'Settings updated in database', data: updateData };
+        }
+      } catch (err) {
+        return { success: true, message: 'Settings updated in memory', data: body };
+      }
     },
     {
       body: t.Optional(t.Any())

@@ -7,6 +7,7 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  role: text('role').notNull().default('editor'), // admin | editor | viewer
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
@@ -91,6 +92,16 @@ export const content = pgTable('content', {
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
 
+export const contentRevision = pgTable('content_revision', {
+  id: text('id').primaryKey(),
+  contentId: text('content_id').notNull().references(() => content.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  body: text('body').notNull(),
+  version: text('version').notNull(),
+  authorId: text('author_id').references(() => user.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
 export const contentTag = pgTable('content_tag', {
   contentId: text('content_id').notNull().references(() => content.id, { onDelete: 'cascade' }),
   tagId: text('tag_id').notNull().references(() => tag.id, { onDelete: 'cascade' }),
@@ -98,9 +109,18 @@ export const contentTag = pgTable('content_tag', {
   primaryKey({ columns: [t.contentId, t.tagId] })
 ]);
 
+export const mediaFolder = pgTable('media_folder', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  path: text('path').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
 export const media = pgTable('media', {
   id: text('id').primaryKey(),
   workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  folderId: text('folder_id').references(() => mediaFolder.id, { onDelete: 'set null' }),
   fileName: text('file_name').notNull(),
   fileUrl: text('file_url').notNull(),
   fileType: text('file_type').notNull(),
@@ -108,5 +128,62 @@ export const media = pgTable('media', {
   altText: text('alt_text'),
   caption: text('caption'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const adapterConnection = pgTable('adapter_connection', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  type: text('type').notNull(), // wordpress | astro | next
+  status: text('status').notNull().default('active'),
+  config: jsonb('config').notNull(), // siteUrl, apiKey, credentials
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const socialAccount = pgTable('social_account', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  platform: text('platform').notNull(), // facebook | instagram | linkedin | telegram
+  name: text('name').notNull(),
+  status: text('status').notNull().default('connected'),
+  credentials: jsonb('credentials'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const scheduleJob = pgTable('schedule_job', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  contentId: text('content_id').notNull().references(() => content.id, { onDelete: 'cascade' }),
+  targetPlatform: text('target_platform').notNull(),
+  scheduledTime: timestamp('scheduled_time').notNull(),
+  status: text('status').notNull().default('pending'), // pending | completed | failed
+  retryCount: integer('retry_count').notNull().default(0),
+  errorMessage: text('error_message'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const notification = pgTable('notification', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  type: text('type').notNull(),
+  title: text('title').notNull(),
+  message: text('message').notNull(),
+  read: boolean('read').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const appSettings = pgTable('app_settings', {
+  id: text('id').primaryKey(),
+  workspaceId: text('workspace_id').notNull().references(() => workspace.id, { onDelete: 'cascade' }),
+  general: jsonb('general'),
+  seoDefaults: jsonb('seo_defaults'),
+  aiSettings: jsonb('ai_settings'),
+  storageSettings: jsonb('storage_settings'),
+  emailSettings: jsonb('email_settings'),
+  apiKeys: jsonb('api_keys'),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
