@@ -1,5 +1,6 @@
 import { format, parseISO, subDays } from "date-fns";
 import { Area, CartesianGrid, ComposedChart, Line, XAxis } from "recharts";
+import { useNavigate } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +47,8 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function PerformanceOverview() {
+  const navigate = useNavigate();
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -54,7 +57,7 @@ export function PerformanceOverview() {
           <CardDescription>Publication activity and engagement across connected adapters</CardDescription>
         </div>
         <CardAction>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate({ to: "/dashboard/analytics" })}>
             View Details
           </Button>
         </CardAction>

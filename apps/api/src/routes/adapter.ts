@@ -48,8 +48,8 @@ export class WordPressAdapter extends BaseAdapter {
           })
         });
 
-        const data = await res.json();
-        if (res.ok && data.id) {
+        const data: any = await res.json();
+        if (res.ok && data?.id) {
           return {
             success: true,
             adapter: 'wordpress',

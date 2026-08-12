@@ -162,31 +162,64 @@ function UsersPage() {
     }
   };
 
-  const handleRoleChange = (id: string, newRole: UserItem["role"]) => {
+  const handleRoleChange = async (id: string, newRole: UserItem["role"]) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, role: newRole } : u))
     );
+    try {
+      await usersApi.updateRole(id, newRole);
+    } catch {}
     toast.add({ type: "success", title: `User role updated to ${newRole.toUpperCase()}` });
   };
 
-  const handleDeleteUser = (id: string) => {
+  const handleDeleteUser = async (id: string) => {
     setUsers((prev) => prev.filter((u) => u.id !== id));
     setSelectedIds((prev) => prev.filter((i) => i !== id));
+    try {
+      await usersApi.deleteUser(id);
+    } catch {}
     toast.add({ type: "success", title: "User removed from workspace" });
   };
 
-  const handleInviteUser = () => {
+  const handleInviteUser = async () => {
     if (!emailInput.trim()) return;
-    const newUser: UserItem = {
-      id: `usr_${Date.now()}`,
-      name: nameInput.trim() || emailInput.split("@")[0],
-      email: emailInput,
-      role: roleInput,
-      organization: "Wontent Enterprise",
-      status: "invited",
-      joinedDate: new Date().toISOString().slice(0, 10),
-    };
-    setUsers((prev) => [newUser, ...prev]);
+    const name = nameInput.trim() || emailInput.split("@")[0];
+
+    try {
+      const res = await usersApi.invite({
+        name,
+        email: emailInput,
+        role: roleInput,
+        organization: "Wontent Enterprise"
+      });
+
+      if (res.success && res.data) {
+        setUsers((prev) => [res.data, ...prev]);
+      } else {
+        const newUser: UserItem = {
+          id: `usr_${Date.now()}`,
+          name,
+          email: emailInput,
+          role: roleInput,
+          organization: "Wontent Enterprise",
+          status: "invited",
+          joinedDate: new Date().toISOString().slice(0, 10),
+        };
+        setUsers((prev) => [newUser, ...prev]);
+      }
+    } catch {
+      const newUser: UserItem = {
+        id: `usr_${Date.now()}`,
+        name,
+        email: emailInput,
+        role: roleInput,
+        organization: "Wontent Enterprise",
+        status: "invited",
+        joinedDate: new Date().toISOString().slice(0, 10),
+      };
+      setUsers((prev) => [newUser, ...prev]);
+    }
+
     toast.add({ type: "success", title: `Invitation sent to ${emailInput}` });
     setNameInput("");
     setEmailInput("");

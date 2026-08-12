@@ -1,5 +1,5 @@
 import type { SimpleIcon } from "simple-icons";
-import { siNextdotjs, siNodedotjs, siReact, siRemix } from "simple-icons";
+import { siNextdotjs, siNodedotjs, siReact, siAstro, siWordpress, siPostgresql } from "simple-icons";
 
 export interface InfrastructureEnvironment {
   domain: string;
@@ -29,86 +29,90 @@ export interface InfrastructureGroup {
 
 export const infrastructureGroups: InfrastructureGroup[] = [
   {
-    name: "Admin Console",
-    organization: "Weblabs Studio",
+    name: "Core CMS Backend & Storage",
+    organization: "Wontent Engine",
     rows: [
       {
-        domain: "next-shadcn-admin-dashboard.vercel.app/dashboard",
-        platform: {
-          name: "Next.js",
-          icon: siNextdotjs,
-        },
-        environment: "Expired",
-        status: "Unhealthy",
-        latency: "86ms",
-        uptime: "8d 23h",
-        server: "Hetzner Cloud",
-        countryCode: "DE",
-        plan: "CX33, Falkenstein",
-        resources: { cpu: 60, ram: 73, disk: 41 },
-      },
-    ],
-  },
-  {
-    name: "Analytics",
-    organization: "Aiy Cap",
-    rows: [
-      {
-        domain: "next-shadcn-admin-dashboard.vercel.app/analytics",
-        platform: {
-          name: "React",
-          icon: siReact,
-        },
-        environment: "Production",
-        status: "Online",
-        latency: "246ms",
-        uptime: "9d 23h",
-        server: "AWS",
-        countryCode: "NL",
-        plan: "eu-west-1, Amsterdam",
-        resources: { cpu: 49, ram: 42, disk: 44 },
-      },
-      {
-        domain: "next-shadcn-admin-dashboard.vercel.app/reports",
-        platform: {
-          name: "Remix",
-          icon: siRemix,
-        },
-        environment: "Staging",
-        status: "Online",
-        latency: "110ms",
-        uptime: "9d 23h",
-        server: "Azure",
-        countryCode: "EE",
-        plan: "North Europe, Tallinn",
-        resources: { cpu: 37, ram: 46, disk: 64 },
-      },
-    ],
-  },
-  {
-    name: "Kanban",
-    organization: "Storeframe",
-    rows: [
-      {
-        domain: "next-shadcn-admin-dashboard.vercel.app/kanban",
+        domain: "localhost:3000 (Elysia API / Bun)",
         platform: {
           name: "Node.js",
           icon: siNodedotjs,
         },
         environment: "Production",
         status: "Online",
-        latency: "25ms",
-        uptime: "10d 23h",
-        server: "Bare Metal / Custom",
-        countryCode: "DE",
-        plan: "EX101, Falkenstein",
-        resources: { cpu: 1, ram: 21, disk: 4 },
+        latency: "12ms",
+        uptime: "14d 02h",
+        server: "Localhost / Docker Container",
+        countryCode: "US",
+        plan: "Bun v1.3 Runtime",
+        resources: { cpu: 15, ram: 28, disk: 18 },
+      },
+      {
+        domain: "localhost:5432 (PostgreSQL Drizzle ORM)",
+        platform: {
+          name: "PostgreSQL",
+          icon: siPostgresql,
+        },
+        environment: "Production",
+        status: "Online",
+        latency: "5ms",
+        uptime: "14d 02h",
+        server: "PostgreSQL 16 Alpine",
+        countryCode: "US",
+        plan: "Docker Managed Volume",
+        resources: { cpu: 8, ram: 35, disk: 42 },
       },
     ],
   },
   {
-    name: "Inbox",
-    organization: "Acme Corp",
-    rows: [],
+    name: "Connected Destination Adapters",
+    organization: "Wontent Publishers",
+    rows: [
+      {
+        domain: "wordpress.mycompany.com/wp-json/wp/v2",
+        platform: {
+          name: "WordPress",
+          icon: siWordpress,
+        },
+        environment: "Production",
+        status: "Online",
+        latency: "120ms",
+        uptime: "30d 12h",
+        server: "WordPress REST API v2",
+        countryCode: "US",
+        plan: "WordPress 6.5 Enterprise",
+        resources: { cpu: 25, ram: 40, disk: 50 },
+      },
+      {
+        domain: "wontent-blog.astro.build",
+        platform: {
+          name: "Astro",
+          icon: siAstro,
+        },
+        environment: "Production",
+        status: "Online",
+        latency: "18ms",
+        uptime: "99d 23h",
+        server: "Vercel / Edge Network",
+        countryCode: "US",
+        plan: "Astro 5 SSG / Webhooks",
+        resources: { cpu: 5, ram: 12, disk: 10 },
+      },
+      {
+        domain: "portal.next.wontent.io",
+        platform: {
+          name: "Next.js",
+          icon: siNextdotjs,
+        },
+        environment: "Staging",
+        status: "Online",
+        latency: "45ms",
+        uptime: "7d 10h",
+        server: "AWS ECS Container",
+        countryCode: "US",
+        plan: "Next.js 15 ISR",
+        resources: { cpu: 30, ram: 45, disk: 30 },
+      },
+    ],
   },
 ];

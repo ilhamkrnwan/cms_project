@@ -117,7 +117,7 @@ function Page() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch articles from API
-  useEffect(() => {
+  const fetchArticles = () => {
     setIsLoading(true);
     contentApi
       .list()
@@ -128,7 +128,7 @@ function Page() {
             title: item.title,
             slug: item.slug,
             body: item.body || "",
-            category: item.category || "Tutorial",
+            category: item.categoryId || item.category || "Tutorial",
             featuredImage: item.featuredImage || "",
             status: item.status || "draft",
             publishDate: item.publishDate ? new Date(item.publishDate).toISOString().slice(0, 16) : "",
@@ -144,6 +144,10 @@ function Page() {
         // Fallback to initial articles if API is unreachable
       })
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchArticles();
   }, []);
 
   const handleOpenCreate = () => {
@@ -158,12 +162,6 @@ function Page() {
 
   const handleSaveArticle = async (formData: Partial<ContentItem>) => {
     if (editingArticle) {
-      setArticles((prev) =>
-        prev.map((item) =>
-          item.id === editingArticle.id ? ({ ...item, ...formData } as ContentItem) : item
-        )
-      );
-
       const res = await contentApi.update(editingArticle.id, {
         title: formData.title,
         content: formData.body,
@@ -174,37 +172,22 @@ function Page() {
       });
       if (res.success) {
         toast.add({ type: "success", title: "Content updated successfully" });
+        fetchArticles();
       } else {
         toast.add({ type: "error", title: res.message || "Failed to update content" });
       }
     } else {
-      const newItem: ContentItem = {
-        id: `cnt_${Date.now()}`,
-        title: formData.title || "Untitled Article",
-        slug: formData.slug || "untitled-article",
-        body: formData.body || "",
-        category: formData.category || "Tutorial",
-        featuredImage: formData.featuredImage || "",
-        status: formData.status || "draft",
-        publishDate: formData.publishDate || (formData.status === "published" ? new Date().toLocaleString() : ""),
-        adapters: formData.adapters || ["WordPress"],
-        seoScore: formData.seoScore || 94,
-        geoScore: formData.geoScore || 90,
-        seoMetadata: formData.seoMetadata,
-        createdAt: new Date().toLocaleString(),
-      };
-      setArticles((prev) => [newItem, ...prev]);
-
       const res = await contentApi.create({
-        title: newItem.title,
-        content: newItem.body,
-        slug: newItem.slug,
-        featuredImage: newItem.featuredImage,
-        status: newItem.status,
-        seoMetadata: newItem.seoMetadata,
+        title: formData.title || "Untitled Article",
+        content: formData.body || "",
+        slug: formData.slug,
+        featuredImage: formData.featuredImage,
+        status: formData.status || "draft",
+        seoMetadata: formData.seoMetadata,
       });
       if (res.success) {
         toast.add({ type: "success", title: "Content created successfully" });
+        fetchArticles();
       } else {
         toast.add({ type: "error", title: res.message || "Failed to create content" });
       }
@@ -213,62 +196,40 @@ function Page() {
   };
 
   const handleDeleteArticle = async (id: string) => {
-    setArticles((prev) => prev.filter((item) => item.id !== id));
     const res = await contentApi.delete(id);
     if (res.success) {
       toast.add({ type: "success", title: "Content deleted successfully" });
+      fetchArticles();
     } else {
       toast.add({ type: "error", title: res.message || "Failed to delete content" });
     }
   };
 
   const handlePublishArticle = async (id: string) => {
-    setArticles((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: "published",
-              publishDate: new Date().toLocaleString(),
-            }
-          : item
-      )
-    );
     const res = await contentApi.publish(id);
     if (res.success) {
       toast.add({ type: "success", title: "Content published successfully" });
+      fetchArticles();
     } else {
       toast.add({ type: "error", title: res.message || "Failed to publish content" });
     }
   };
 
   const handleArchiveArticle = async (id: string) => {
-    setArticles((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: "archived" } : item
-      )
-    );
     const res = await contentApi.archive(id);
     if (res.success) {
       toast.add({ type: "success", title: "Content archived successfully" });
+      fetchArticles();
     } else {
       toast.add({ type: "error", title: res.message || "Failed to archive content" });
     }
   };
 
   const handleStatusChange = async (id: string, newStatus: ContentItem["status"]) => {
-    setArticles((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: newStatus,
-              publishDate: newStatus === "published" ? new Date().toLocaleString() : item.publishDate,
-            }
-          : item
-      )
-    );
-    await contentApi.update(id, { status: newStatus });
+    const res = await contentApi.update(id, { status: newStatus });
+    if (res.success) {
+      fetchArticles();
+    }
   };
 
   if (viewMode === "editor") {

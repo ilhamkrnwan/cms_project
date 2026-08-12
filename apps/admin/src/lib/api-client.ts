@@ -274,10 +274,44 @@ export const settingsApi = {
 
 export const usersApi = {
   list: () => fetchApi<any[]>('/api/v1/users'),
+  invite: (payload: { name?: string; email: string; role: string; organization?: string }) =>
+    fetchApi<any>('/api/v1/users/invite', { method: 'POST', body: JSON.stringify(payload) }),
+  updateRole: (id: string, role: string) =>
+    fetchApi<any>(`/api/v1/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
+  deleteUser: (id: string) =>
+    fetchApi<any>(`/api/v1/users/${id}`, { method: 'DELETE' }),
+
   roles: () => fetchApi<any[]>('/api/v1/users/roles'),
+  createRole: (payload: { name: string; description?: string; permissions?: string[] }) =>
+    fetchApi<any>('/api/v1/users/roles', { method: 'POST', body: JSON.stringify(payload) }),
+  deleteRole: (id: string) =>
+    fetchApi<any>(`/api/v1/users/roles/${id}`, { method: 'DELETE' }),
+
   permissions: () => fetchApi<any[]>('/api/v1/users/permissions'),
   organizations: () => fetchApi<any[]>('/api/v1/users/organizations'),
 };
+
+// ──────────────────────────────────────────────
+// Auth API
+// ──────────────────────────────────────────────
+
+export const authApi = {
+  signIn: (payload: { email: string; password: string }) =>
+    fetchApi<any>('/api/v1/auth/sign-in', { method: 'POST', body: JSON.stringify(payload) }),
+  signUp: (payload: { name: string; email: string; password: string }) =>
+    fetchApi<any>('/api/v1/auth/sign-up', { method: 'POST', body: JSON.stringify(payload) }),
+  signOut: () =>
+    fetchApi<any>('/api/v1/auth/sign-out', { method: 'POST' }),
+  getSession: () =>
+    fetchApi<any>('/api/v1/auth/session'),
+  forgotPassword: (payload: { email: string }) =>
+    fetchApi<any>('/api/v1/auth/forgot-password', { method: 'POST', body: JSON.stringify(payload) }),
+  resetPassword: (payload: { email: string; token: string; newPassword: string }) =>
+    fetchApi<any>('/api/v1/auth/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
+  verifyEmail: (payload: { token: string }) =>
+    fetchApi<any>('/api/v1/auth/verify-email', { method: 'POST', body: JSON.stringify(payload) }),
+};
+
 
 // ──────────────────────────────────────────────
 // Health API

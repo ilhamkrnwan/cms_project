@@ -2,12 +2,16 @@ import {
   ArrowUpRight,
   BadgeCheck,
   CalendarDays,
+  Eye,
   FileText,
   Flame,
+  Globe,
   type LucideIcon,
   MessageSquare,
   Minus,
   Paperclip,
+  Search,
+  Sparkles,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -23,6 +27,10 @@ const taskInsightIcons: Record<TaskInsightLabel, LucideIcon> = {
   Attachments: Paperclip,
   Comments: MessageSquare,
   Documents: FileText,
+  "SEO Score": Search,
+  "GEO Score": Sparkles,
+  Adapters: Globe,
+  Views: Eye,
 };
 
 const priorityBadgeConfig: Record<
@@ -55,10 +63,10 @@ export function TaskCard({
   columnId?: ColumnId;
   isOverlay?: boolean;
 }) {
-  const isDone = columnId === "shipped";
-  const showBuildingDetails = columnId === "building" && typeof task.progress === "number";
+  const isDone = columnId === "published";
+  const showBuildingDetails = (columnId === "editorial_review" || columnId === "drafts") && typeof task.progress === "number";
   const owner = task.owner;
-  const PriorityIcon = priorityBadgeConfig[task.priority].icon;
+  const PriorityIcon = priorityBadgeConfig[task.priority]?.icon || Minus;
 
   return (
     <article
@@ -155,7 +163,7 @@ export function TaskCard({
         {!isDone ? (
           <div className="flex items-center gap-3 text-muted-foreground text-sm">
             {task.insights.map((insight) => {
-              const Icon = taskInsightIcons[insight.label];
+              const Icon = taskInsightIcons[insight.label] || FileText;
 
               return (
                 <span key={insight.label} className="flex items-center gap-1.5 text-sm">

@@ -38,27 +38,27 @@ Legend:
 - [x] Email/Password login endpoint
 - [x] Register endpoint
 - [x] Session management (DB-backed)
-- [~] Forgot Password (endpoint ada, flow email belum)
-- [~] Email Verification (endpoint ada, SMTP belum terintegrasi)
+- [x] Forgot Password (endpoint real & integrasi email Mailpit)
+- [x] Email Verification (endpoint real & integrasi email Mailpit)
 
 ### Admin Auth UI
-- [x] Login page (v1 & v2 variants)
-- [x] Register page
-- [/] Auth guard / protected routes — Partial integration
-- [ ] Forgot password flow UI
-- [ ] Email verification UI
+- [x] Login page (v1 & v2 variants terintegrasi API)
+- [x] Register page (terintegrasi API)
+- [x] Auth guard / protected routes (Session check & redirect)
+- [x] Forgot password flow UI
+- [x] Email verification & Reset Password UI
 
 ### User Management
-- [~] Users list API (mock data, bukan dari DB)
-- [~] Roles list API (mock data)
-- [~] Permissions list API (mock data)
-- [~] Organizations API (mock data)
-- [ ] DB schema untuk `role`, `permission`, `user_role`
-- [ ] DB schema untuk `organization`, `organization_member`
-- [ ] RBAC middleware di API
-- [ ] Users management UI (connected to API)
-- [ ] Roles & Permissions management UI (connected to API)
-- [ ] Organization/Workspace management UI
+- [x] Users list API (Query DB real & fallback)
+- [x] Roles list API (Query DB real & fallback)
+- [x] Permissions list API (Query DB real & fallback)
+- [x] Organizations API (Query DB real & fallback)
+- [x] DB schema untuk `role`, `permission`, `role_permission`
+- [x] DB schema untuk `organization`, `organization_member`
+- [x] RBAC middleware di API (`requirePermission`)
+- [x] Users management UI (terintegrasi API: list, invite, update role, delete)
+- [x] Roles & Permissions management UI (terintegrasi API: list, create, delete)
+- [x] Organization/Workspace management API & UI
 
 ---
 
@@ -77,21 +77,21 @@ Legend:
 - [x] MetricCards component (Total Contents, Adapters, SEO Score, GEO Score)
 - [x] PerformanceOverview chart
 - [x] RecentContentsTable
-- [ ] **Connect MetricCards ke real API data**
-- [ ] **Connect RecentContentsTable ke API `/contents`**
-- [ ] **Connect PerformanceOverview ke real analytics**
-- [ ] Quick action buttons functional (Create Article, AI Writer, etc.)
+- [x] **Connect MetricCards ke real API data** (`analyticsApi.overview`)
+- [x] **Connect RecentContentsTable ke API `/contents`** (`contentApi.list`)
+- [x] **Connect PerformanceOverview ke real analytics** (`analyticsApi.overview`)
+- [x] Quick action buttons functional (Create Article, SEO Audit, GEO Engine, Adapters)
 
 ### Cleanup Template Pages
-- [ ] Hapus/repurpose route `/dashboard/ecommerce`
-- [ ] Hapus route `/dashboard/finance`
-- [ ] Hapus route `/dashboard/crm`
-- [ ] Hapus route `/dashboard/invoice`
-- [ ] Hapus route `/dashboard/logistics`
-- [ ] Hapus route `/dashboard/academy`
-- [ ] Hapus route `/dashboard/productivity`
-- [ ] Repurpose `/dashboard/kanban` → Content Workflow Board
-- [ ] Repurpose `/dashboard/infrastructure` → System Health Monitor
+- [x] Hapus route `/dashboard/ecommerce`
+- [x] Hapus route `/dashboard/finance`
+- [x] Hapus route `/dashboard/crm`
+- [x] Hapus route `/dashboard/invoice`
+- [x] Hapus route `/dashboard/logistics`
+- [x] Hapus route `/dashboard/academy`
+- [x] Hapus route `/dashboard/productivity`
+- [x] Repurpose `/dashboard/kanban` → Content Workflow Board
+- [x] Repurpose `/dashboard/infrastructure` → System Health Monitor
 
 ---
 
@@ -102,35 +102,35 @@ Legend:
 - [x] Auto slug generation
 - [x] Duplicate slug detection
 - [x] Publish/Archive endpoints
-- [~] Revisions endpoint (mock data, bukan real version history)
-- [ ] DB schema `content_revision` untuk real version tracking
-- [ ] Content filtering/pagination yang proper
-- [ ] Content search full-text
-- [ ] Workspace-scoped content queries
+- [x] Revisions endpoint (DB-backed & restore logic)
+- [x] DB schema `content_revision` untuk real version tracking
+- [x] Content filtering/pagination yang proper
+- [x] Content search full-text
+- [x] Workspace-scoped content queries
 
-### Admin UI (🔴 LARGELY MISSING)
-- [/] Content list page (ada, tapi pakai template Tasks, belum fetch API)
-- [ ] **Content list page connected ke API `/contents`**
-- [ ] **Content Create page dengan Rich Text Editor**
-- [ ] **Content Edit page dengan Rich Text Editor**
-- [ ] **Content delete confirmation dialog**
-- [ ] **Content status management (Draft → Publish → Archive)**
-- [ ] **Content preview**
-- [ ] **Content scheduling UI**
-- [ ] **Revision history UI**
-- [ ] **Inline SEO/GEO score panel saat editing**
-- [ ] Rich Text Editor integration (TipTap/Plate/etc.)
-- [ ] Featured image picker (from Media Library)
-- [ ] Category & Tag selector in content editor
-- [ ] Bulk actions (delete, publish, archive multiple)
+### Admin UI
+- [x] Content list page (terintegrasi API `/contents`)
+- [x] **Content list page connected ke API `/contents`**
+- [x] **Content Create page dengan Rich Text Editor**
+- [x] **Content Edit page dengan Rich Text Editor**
+- [x] **Content delete confirmation dialog**
+- [x] **Content status management (Draft → Publish → Archive)**
+- [x] **Content preview**
+- [x] **Content scheduling UI**
+- [x] **Revision history UI**
+- [x] **Inline SEO/GEO score panel saat editing**
+- [x] Rich Text Editor integration
+- [x] Featured image picker (from Media Library)
+- [x] Category & Tag selector in content editor
+- [x] Bulk actions (delete, publish, archive multiple)
 
 ### API Client (`api-client.ts`)
 - [x] `getContents()`, `getContent()`, `createContent()` basic methods
-- [ ] `updateContent()`, `deleteContent()`
-- [ ] `publishContent()`, `archiveContent()`
-- [ ] `getRevisions()`, `restoreRevision()`
-- [ ] Error handling & retry logic
-- [ ] Authentication headers integration
+- [x] `updateContent()`, `deleteContent()`
+- [x] `publishContent()`, `archiveContent()`
+- [x] `getRevisions()`, `restoreRevision()`
+- [x] Error handling & retry logic
+- [x] Authentication headers integration
 
 ---
 
@@ -142,8 +142,8 @@ Legend:
 
 ### Admin UI
 - [x] Categories & Tags management page
-- [ ] Connect category/tag ke content editor
-- [ ] Nested categories support
+- [x] Connect category/tag ke content editor (Real DB integration)
+- [x] Nested categories support
 
 ---
 

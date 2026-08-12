@@ -1,4 +1,4 @@
-export type ColumnId = "ideas" | "planned" | "building" | "qa" | "shipped";
+export type ColumnId = "drafts" | "editorial_review" | "scheduled" | "published";
 
 export type Column = {
   id: ColumnId;
@@ -18,7 +18,14 @@ export type TaskTeam =
 
 export type TaskPriority = "High" | "Medium" | "Low";
 
-export type TaskInsightLabel = "Attachments" | "Comments" | "Documents";
+export type TaskInsightLabel =
+  | "Attachments"
+  | "Comments"
+  | "Documents"
+  | "SEO Score"
+  | "GEO Score"
+  | "Adapters"
+  | "Views";
 
 export type TaskInsight = {
   label: TaskInsightLabel;

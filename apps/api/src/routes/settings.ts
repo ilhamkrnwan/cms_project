@@ -42,17 +42,18 @@ export const settingsRoutes = new Elysia({ prefix: '/settings' })
     '/',
     async ({ body }) => {
       try {
+        const b = body || {};
         const records = await db.select().from(appSettings).limit(1);
         if (records.length === 0) {
           const newSetting = {
             id: `stg_default`,
             workspaceId: 'ws_default',
-            general: body.general || DEFAULT_SETTINGS.general,
-            seoDefaults: body.seoDefaults || DEFAULT_SETTINGS.seoDefaults,
-            aiSettings: body.aiSettings || DEFAULT_SETTINGS.aiSettings,
-            storageSettings: body.storageSettings || DEFAULT_SETTINGS.storageSettings,
-            emailSettings: body.emailSettings || DEFAULT_SETTINGS.emailSettings,
-            apiKeys: body.apiKeys || DEFAULT_SETTINGS.apiKeys,
+            general: b.general || DEFAULT_SETTINGS.general,
+            seoDefaults: b.seoDefaults || DEFAULT_SETTINGS.seoDefaults,
+            aiSettings: b.aiSettings || DEFAULT_SETTINGS.aiSettings,
+            storageSettings: b.storageSettings || DEFAULT_SETTINGS.storageSettings,
+            emailSettings: b.emailSettings || DEFAULT_SETTINGS.emailSettings,
+            apiKeys: b.apiKeys || DEFAULT_SETTINGS.apiKeys,
             updatedAt: new Date()
           };
           await db.insert(appSettings).values(newSetting);

@@ -187,3 +187,48 @@ export const appSettings = pgTable('app_settings', {
   apiKeys: jsonb('api_keys'),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 });
+
+// RBAC & Organization Schemas
+export const role = pgTable('role', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  type: text('type').notNull().default('custom'), // system | custom
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const permission = pgTable('permission', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  module: text('module').notNull(),
+  description: text('description'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+
+export const rolePermission = pgTable('role_permission', {
+  id: text('id').primaryKey(),
+  roleId: text('role_id').notNull().references(() => role.id, { onDelete: 'cascade' }),
+  permissionId: text('permission_id').notNull().references(() => permission.id, { onDelete: 'cascade' }),
+});
+
+export const organization = pgTable('organization', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  plan: text('plan').notNull().default('pro'),
+  logo: text('logo'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+});
+
+export const organizationMember = pgTable('organization_member', {
+  id: text('id').primaryKey(),
+  organizationId: text('organization_id').notNull().references(() => organization.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  role: text('role').notNull().default('editor'),
+  createdAt: timestamp('created_at').notNull().defaultNow()
+});
+

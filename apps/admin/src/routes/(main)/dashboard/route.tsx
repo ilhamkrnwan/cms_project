@@ -1,12 +1,13 @@
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { users } from "@/data/users";
 import { cn } from "@/lib/utils";
 import { getDashboardLayout } from "@/server/server-actions";
+import { useAuthStore } from "@/stores/auth-store";
 
 import { AccountSwitcher } from "./-components/header/account-switcher";
 import { GitHubRepositoriesMenu } from "./-components/header/github-repositories-menu";
@@ -21,7 +22,18 @@ export const Route = createFileRoute("/(main)/dashboard")({
 });
 
 function DashboardLayout() {
+  const navigate = useNavigate();
   const { defaultOpen, variant, collapsible } = Route.useLoaderData();
+  const { isAuthenticated, isLoading, checkSession } = useAuthStore();
+
+  useEffect(() => {
+    checkSession().then((isLoggedIn) => {
+      if (!isLoggedIn) {
+        // Redirect to login page if unauthenticated
+        navigate({ to: "/auth/login" });
+      }
+    });
+  }, []);
 
   return (
     <SidebarProvider
@@ -46,7 +58,6 @@ function DashboardLayout() {
         <header
           className={cn(
             "flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12",
-            // Handle sticky navbar style with conditional classes so blur, background, z-index, and rounded corners remain consistent across all SidebarVariant layouts.
             "[html[data-navbar-style=sticky]_&]:sticky [html[data-navbar-style=sticky]_&]:top-0 [html[data-navbar-style=sticky]_&]:z-50 [html[data-navbar-style=sticky]_&]:overflow-hidden [html[data-navbar-style=sticky]_&]:rounded-t-[inherit] [html[data-navbar-style=sticky]_&]:bg-background/50 [html[data-navbar-style=sticky]_&]:backdrop-blur-md",
           )}
         >
@@ -67,7 +78,6 @@ function DashboardLayout() {
             </div>
           </div>
         </header>
-        {/* Pages can set data-content-padding="false" to render full-bleed app layouts. */}
         <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden p-4 has-data-[content-padding=false]:p-0 md:p-6 md:has-data-[content-padding=false]:p-0">
           <Outlet />
         </div>

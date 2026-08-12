@@ -65,7 +65,9 @@ const AVAILABLE_ADAPTERS = [
   { id: "LinkedIn", label: "LinkedIn" },
 ];
 
-const CATEGORIES = [
+import { categoryApi, tagApi } from "@/lib/api-client";
+
+const DEFAULT_CATEGORIES = [
   "Tutorial",
   "Marketing",
   "Engineering",
@@ -90,6 +92,7 @@ export function ContentEditor({
 }: ContentEditorProps) {
   const isEditing = Boolean(initialData);
 
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [isSlugCustom, setIsSlugCustom] = useState(false);
@@ -106,6 +109,35 @@ export function ContentEditor({
   const [seoTitle, setSeoTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [keywords, setKeywords] = useState("");
+
+  // Dynamically calculate live SEO & GEO scores
+  const calculatedSeoScore = Math.min(
+    100,
+    60 +
+      (title.length >= 10 ? 10 : 0) +
+      (metaDescription.length >= 40 ? 15 : 0) +
+      (keywords.trim().length > 0 ? 15 : 0)
+  );
+
+  const calculatedGeoScore = Math.min(
+    100,
+    60 +
+      (body.length >= 80 ? 20 : 0) +
+      (body.includes("#") || body.includes("###") ? 10 : 0) +
+      (keywords.trim().length > 0 ? 10 : 0)
+  );
+
+  useEffect(() => {
+    // Fetch categories and tags from real API
+    categoryApi.list()
+      .then((res) => {
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const names = res.data.map((c: any) => c.name);
+          setCategories(Array.from(new Set([...names, ...DEFAULT_CATEGORIES])));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -173,8 +205,8 @@ export function ContentEditor({
         metaDescription,
         keywords,
       },
-      seoScore: initialData?.seoScore || 94,
-      geoScore: initialData?.geoScore || 90,
+      seoScore: calculatedSeoScore,
+      geoScore: calculatedGeoScore,
     });
   };
 
@@ -396,7 +428,7 @@ export function ContentEditor({
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat}
                       </SelectItem>

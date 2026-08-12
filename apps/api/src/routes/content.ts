@@ -43,10 +43,10 @@ export const contentRoutes = new Elysia({ prefix: '/contents' })
       const newItem = {
         id: `cnt_${Date.now()}`,
         workspaceId: body.workspaceId || 'ws_default',
-        categoryId: body.categoryId || null,
+        categoryId: body.categoryId || body.category || null,
         title: body.title,
         slug: finalSlug,
-        body: body.content,
+        body: body.content !== undefined ? body.content : (body.body || ''),
         featuredImage: body.featuredImage || null,
         status: body.status || 'draft',
         publishDate: body.status === 'published' ? new Date() : (body.publishDate ? new Date(body.publishDate) : null),
@@ -61,9 +61,11 @@ export const contentRoutes = new Elysia({ prefix: '/contents' })
     {
       body: t.Object({
         title: t.String(),
-        content: t.String(),
+        content: t.Optional(t.String()),
+        body: t.Optional(t.String()),
         workspaceId: t.Optional(t.String()),
         categoryId: t.Optional(t.String()),
+        category: t.Optional(t.String()),
         slug: t.Optional(t.String()),
         featuredImage: t.Optional(t.String()),
         status: t.Optional(t.Union([t.Literal('draft'), t.Literal('published'), t.Literal('scheduled'), t.Literal('archived')])),
@@ -85,21 +87,28 @@ export const contentRoutes = new Elysia({ prefix: '/contents' })
         updatedAt: new Date()
       };
 
-      if (body.title) updateData.title = body.title;
-      if (body.content) updateData.body = body.content;
-      if (body.status) updateData.status = body.status;
-      if (body.slug) updateData.slug = generateSlug(body.slug);
+      if (body.title !== undefined) updateData.title = body.title;
+      if (body.content !== undefined) updateData.body = body.content;
+      if (body.body !== undefined) updateData.body = body.body;
+      if (body.status !== undefined) updateData.status = body.status;
+      if (body.slug !== undefined) updateData.slug = generateSlug(body.slug);
       if (body.featuredImage !== undefined) updateData.featuredImage = body.featuredImage;
       if (body.seoMetadata !== undefined) updateData.seoMetadata = body.seoMetadata;
+      if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
+      if (body.category !== undefined) updateData.categoryId = body.category;
 
       await db.update(content).set(updateData).where(eq(content.id, params.id));
-      return { success: true, message: 'Content updated successfully' };
+      const updated = await db.select().from(content).where(eq(content.id, params.id));
+      return { success: true, message: 'Content updated successfully', data: updated[0] };
     },
     {
       body: t.Object({
         title: t.Optional(t.String()),
         content: t.Optional(t.String()),
+        body: t.Optional(t.String()),
         slug: t.Optional(t.String()),
+        categoryId: t.Optional(t.String()),
+        category: t.Optional(t.String()),
         featuredImage: t.Optional(t.String()),
         status: t.Optional(t.Union([t.Literal('draft'), t.Literal('published'), t.Literal('scheduled'), t.Literal('archived')])),
         seoMetadata: t.Optional(t.Any())

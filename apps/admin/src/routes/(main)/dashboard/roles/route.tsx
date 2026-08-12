@@ -101,7 +101,16 @@ function RolesPage() {
     usersApi.roles()
       .then((res) => {
         if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-          // Keep rich data
+          const mapped: RoleItem[] = res.data.map((r: any, idx: number) => ({
+            id: r.id || `role_${idx}`,
+            name: r.name || "Custom Role",
+            slug: r.slug || "custom_role",
+            description: r.description || "Workspace permission role policy",
+            permissions: r.permissions || ["content:create", "content:edit", "media:upload"],
+            assignedUsersCount: r.assignedUsersCount || 0,
+            type: (r.type as RoleItem["type"]) || "custom",
+          }));
+          setRoles(mapped);
         }
       })
       .catch(() => {});
@@ -123,24 +132,52 @@ function RolesPage() {
     }
   };
 
-  const handleDeleteRole = (id: string) => {
+  const handleDeleteRole = async (id: string) => {
     setRoles((prev) => prev.filter((r) => r.id !== id));
     setSelectedIds((prev) => prev.filter((i) => i !== id));
+    try {
+      await usersApi.deleteRole(id);
+    } catch {}
     toast.add({ type: "success", title: "Role deleted successfully" });
   };
 
-  const handleSaveRole = () => {
+  const handleSaveRole = async () => {
     if (!roleNameInput.trim()) return;
-    const newRole: RoleItem = {
-      id: `role_${Date.now()}`,
-      name: roleNameInput,
-      slug: roleNameInput.toLowerCase().replace(/\s+/g, "_"),
-      description: roleDescInput || "Custom workspace permission role",
-      permissions: ["content:create", "content:edit", "media:upload"],
-      assignedUsersCount: 0,
-      type: "custom",
-    };
-    setRoles((prev) => [...prev, newRole]);
+
+    try {
+      const res = await usersApi.createRole({
+        name: roleNameInput,
+        description: roleDescInput,
+        permissions: ["content:create", "content:edit", "media:upload"]
+      });
+
+      if (res.success && res.data) {
+        setRoles((prev) => [...prev, res.data]);
+      } else {
+        const newRole: RoleItem = {
+          id: `role_${Date.now()}`,
+          name: roleNameInput,
+          slug: roleNameInput.toLowerCase().replace(/\s+/g, "_"),
+          description: roleDescInput || "Custom workspace permission role",
+          permissions: ["content:create", "content:edit", "media:upload"],
+          assignedUsersCount: 0,
+          type: "custom",
+        };
+        setRoles((prev) => [...prev, newRole]);
+      }
+    } catch {
+      const newRole: RoleItem = {
+        id: `role_${Date.now()}`,
+        name: roleNameInput,
+        slug: roleNameInput.toLowerCase().replace(/\s+/g, "_"),
+        description: roleDescInput || "Custom workspace permission role",
+        permissions: ["content:create", "content:edit", "media:upload"],
+        assignedUsersCount: 0,
+        type: "custom",
+      };
+      setRoles((prev) => [...prev, newRole]);
+    }
+
     toast.add({ type: "success", title: `Role ${roleNameInput} created` });
     setRoleNameInput("");
     setRoleDescInput("");

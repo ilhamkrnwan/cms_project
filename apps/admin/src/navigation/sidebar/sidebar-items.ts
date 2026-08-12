@@ -1,9 +1,11 @@
 import {
+  Activity,
   Calendar,
   FileText,
   FolderTree,
   Globe,
   Image as ImageIcon,
+  KanbanSquare,
   LayoutDashboard,
   Lock,
   type LucideIcon,
@@ -86,6 +88,12 @@ export const sidebarItems: NavGroup[] = [
         icon: FileText,
       },
       {
+        id: "workflow",
+        title: "Workflow Board",
+        url: "/dashboard/kanban",
+        icon: KanbanSquare,
+      },
+      {
         id: "categories",
         title: "Categories & Tags",
         url: "/dashboard/categories",
@@ -157,6 +165,12 @@ export const sidebarItems: NavGroup[] = [
         title: "Roles & Permissions",
         url: "/dashboard/roles",
         icon: Lock,
+      },
+      {
+        id: "infrastructure",
+        title: "System Health",
+        url: "/dashboard/infrastructure",
+        icon: Activity,
       },
       {
         id: "settings",
